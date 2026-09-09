@@ -52,13 +52,33 @@
 
       <!-- Header Actions -->
       <div class="header-actions">
-        <!-- Search Trigger -->
-        <button class="action-btn search-trigger-btn" aria-label="Search catalog">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </button>
+        <!-- Compact Search Bar at Side (Desktop) & Phone Trigger -->
+        <div class="header-search-wrapper" id="header-search-wrapper">
+          <div class="search-expandable-bar">
+            <input type="text" id="desktop-search-input" class="desktop-search-input" placeholder="Search catalog..." autocomplete="off">
+            <span class="search-bar-close" id="desktop-search-clear" title="Clear search" style="display: none;">&times;</span>
+          </div>
+          <button class="action-btn search-trigger-btn" id="search-trigger-btn" aria-label="Search catalog">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+
+          <!-- Desktop Search Dropdown Menu -->
+          <div class="search-dropdown-menu" id="desktop-search-dropdown">
+            <div class="search-quick-tags">
+              <span class="search-tag-pill" data-search-term="Hoodie">Hoodies</span>
+              <span class="search-tag-pill" data-search-term="Tee">Tees</span>
+              <span class="search-tag-pill" data-search-term="Linen">Linen</span>
+              <span class="search-tag-pill" data-search-term="Jacket">Jackets</span>
+              <span class="search-tag-pill" data-search-term="Pants">Pants</span>
+            </div>
+            <div class="search-dropdown-list" id="desktop-search-results">
+              <p style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 1rem 0;">Type to search products...</p>
+            </div>
+          </div>
+        </div>
 
         <!-- Account Link -->
         <a href="/login.html" class="action-btn" aria-label="My Account">
@@ -401,32 +421,34 @@
     </div>
   </div>
 
-  <!-- Search Modal Overlay -->
-  <div class="search-overlay" id="search-overlay">
-    <div class="search-header">
-      <span class="brand-title" style="font-size: 1.4rem;">Search Zarona</span>
-      <button class="action-btn" id="search-close-btn" aria-label="Close search">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <!-- Mobile Search Popup (Phone) -->
+  <div class="mobile-search-backdrop" id="mobile-search-backdrop"></div>
+  <div class="mobile-search-popup" id="mobile-search-popup" role="dialog" aria-modal="true" aria-label="Search catalog">
+    <div class="mobile-search-header">
+      <div class="mobile-search-input-wrap">
+        <svg class="mobile-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="mobile-search-input" class="mobile-search-input" placeholder="Search Zarona products..." autocomplete="off">
+      </div>
+      <button class="mobile-search-close-btn" id="mobile-search-close-btn" aria-label="Close search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
     </div>
-
-    <div class="search-input-wrap">
-      <input type="text" id="search-input" class="search-input" placeholder="Search by item, color, or silhouette..." autocomplete="off">
+    <div class="mobile-search-tags">
+      <span class="search-tag-pill" data-search-term="Hoodie">Hoodies</span>
+      <span class="search-tag-pill" data-search-term="Tee">Tees</span>
+      <span class="search-tag-pill" data-search-term="Linen">Linen</span>
+      <span class="search-tag-pill" data-search-term="Jacket">Jackets</span>
+      <span class="search-tag-pill" data-search-term="Pants">Pants</span>
     </div>
-
-    <div class="search-suggestions">
-      <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 0.5rem;">Popular:</span>
-      <span class="search-tag" data-tag="Hoodie">Heavyweight Hoodie</span>
-      <span class="search-tag" data-tag="Tee">Oversized Tee</span>
-      <span class="search-tag" data-tag="Linen">Linen Shirt</span>
-      <span class="search-tag" data-tag="Corduroy">Corduroy Jacket</span>
-      <span class="search-tag" data-tag="Pants">Relaxed Pants</span>
+    <div class="mobile-search-results" id="mobile-search-results">
+      <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 1.5rem 0;">Type to search products...</p>
     </div>
-
-    <div class="search-results-grid" id="search-results"></div>
   </div>
 
   <!-- Mobile Navigation Drawer -->

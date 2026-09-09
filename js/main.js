@@ -264,72 +264,209 @@ class ZaronaApp {
   }
 
   // ------------------------------------------------------------------------
-  // SEARCH MODAL
+  // SEARCH (DESKTOP SIDE SEARCH & PHONE POPUP SEARCH)
   // ------------------------------------------------------------------------
   initSearchModal() {
-    const overlay = document.getElementById('search-overlay');
-    const triggers = document.querySelectorAll('.search-trigger-btn');
-    const closeBtn = document.getElementById('search-close-btn');
-    const searchInput = document.getElementById('search-input');
-    const resultsGrid = document.getElementById('search-results');
-    const tags = document.querySelectorAll('.search-tag');
+    // Elements - Desktop
+    const desktopSearchWrap = document.getElementById('header-search-wrapper');
+    const desktopInput = document.getElementById('desktop-search-input');
+    const desktopClear = document.getElementById('desktop-search-clear');
+    const desktopResults = document.getElementById('desktop-search-results');
+    const searchTriggerBtn = document.getElementById('search-trigger-btn');
 
-    triggers.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (overlay) {
-          overlay.classList.add('active');
-          document.body.style.overflow = 'hidden';
-          if (searchInput) {
-            searchInput.value = '';
-            setTimeout(() => searchInput.focus(), 150);
-          }
-          if (resultsGrid) resultsGrid.innerHTML = '';
-        }
+    // Elements - Mobile Popup
+    const mobileBackdrop = document.getElementById('mobile-search-backdrop');
+    const mobilePopup = document.getElementById('mobile-search-popup');
+    const mobileInput = document.getElementById('mobile-search-input');
+    const mobileCloseBtn = document.getElementById('mobile-search-close-btn');
+    const mobileResults = document.getElementById('mobile-search-results');
+
+    // Tag pills
+    const allTagPills = document.querySelectorAll('.search-tag-pill');
+
+    const renderSearchResults = (container, query) => {
+      if (!container) return;
+      const cleanQuery = (query || '').trim().toLowerCase();
+      if (!cleanQuery) {
+        container.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 0.82rem; padding: 1.25rem 0;">Type to search products...</p>`;
+        return;
+      }
+
+      const matches = this.products.filter(p =>
+        p.name.toLowerCase().includes(cleanQuery) ||
+        p.category.toLowerCase().includes(cleanQuery) ||
+        (p.description && p.description.toLowerCase().includes(cleanQuery))
+      );
+
+      if (matches.length === 0) {
+        container.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 0.82rem; padding: 1.25rem 0;">No products found for "${query}"</p>`;
+        return;
+      }
+
+      container.innerHTML = matches.map(p => `
+        <div class="search-result-item" data-id="${p.id}" tabindex="0" role="button" aria-label="View ${p.name}">
+          <img src="${p.primaryImage}" alt="${p.name}" class="search-result-thumb">
+          <div class="search-result-info">
+            <span class="search-result-name">${p.name}</span>
+            <span class="search-result-meta">${p.category} &bull; $${p.price.toFixed(2)}</span>
+          </div>
+          <span class="search-result-view-btn">View</span>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.search-result-item').forEach(item => {
+        const handleSelect = (e) => {
+          e.preventDefault();
+          const id = item.getAttribute('data-id');
+          closeAllSearch();
+          this.openQuickView(id);
+        };
+        item.addEventListener('click', handleSelect);
+        item.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') handleSelect(e);
+        });
       });
-    });
+    };
 
-    const closeSearch = () => {
-      if (overlay) {
-        overlay.classList.remove('active');
+    const openMobileSearch = () => {
+      if (mobilePopup && mobileBackdrop) {
+        mobileBackdrop.classList.add('active');
+        mobilePopup.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        if (mobileInput) {
+          mobileInput.value = '';
+          renderSearchResults(mobileResults, '');
+          setTimeout(() => mobileInput.focus(), 150);
+        }
+      }
+    };
+
+    const closeMobileSearch = () => {
+      if (mobilePopup && mobileBackdrop) {
+        mobilePopup.classList.remove('active');
+        mobileBackdrop.classList.remove('active');
         document.body.style.overflow = '';
       }
     };
 
-    if (closeBtn) closeBtn.addEventListener('click', closeSearch);
+    const closeDesktopSearch = () => {
+      if (desktopSearchWrap) {
+        desktopSearchWrap.classList.remove('open');
+      }
+    };
 
-    if (searchInput && resultsGrid) {
-      searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.trim().toLowerCase();
-        if (!query) {
-          resultsGrid.innerHTML = '';
-          return;
+    const closeAllSearch = () => {
+      closeMobileSearch();
+      closeDesktopSearch();
+    };
+
+    // Search Trigger button click
+    if (searchTriggerBtn) {
+      searchTriggerBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.innerWidth <= 768) {
+          openMobileSearch();
+        } else {
+          if (desktopSearchWrap) {
+            desktopSearchWrap.classList.toggle('open');
+            if (desktopSearchWrap.classList.contains('open') && desktopInput) {
+              desktopInput.focus();
+              renderSearchResults(desktopResults, desktopInput.value);
+            }
+          }
         }
-
-        const filtered = this.products.filter(p => 
-          p.name.toLowerCase().includes(query) ||
-          p.category.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query)
-        );
-
-        if (filtered.length === 0) {
-          resultsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">No products found for "${query}"</p>`;
-          return;
-        }
-
-        resultsGrid.innerHTML = filtered.map(p => this.renderProductCardHTML(p)).join('');
-        this.attachCardEventListeners(resultsGrid);
       });
     }
 
-    tags.forEach(tag => {
-      tag.addEventListener('click', () => {
-        const val = tag.getAttribute('data-tag');
-        if (searchInput) {
-          searchInput.value = val;
-          searchInput.dispatchEvent(new Event('input'));
+    // Desktop Input events
+    if (desktopInput) {
+      desktopInput.addEventListener('focus', () => {
+        if (desktopSearchWrap) {
+          desktopSearchWrap.classList.add('open');
+          renderSearchResults(desktopResults, desktopInput.value);
         }
       });
+
+      desktopInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (desktopClear) {
+          desktopClear.style.display = val ? 'flex' : 'none';
+        }
+        if (desktopSearchWrap) {
+          desktopSearchWrap.classList.add('open');
+        }
+        renderSearchResults(desktopResults, val);
+      });
+
+      desktopInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeDesktopSearch();
+          desktopInput.blur();
+        }
+      });
+    }
+
+    // Desktop Clear button
+    if (desktopClear && desktopInput) {
+      desktopClear.addEventListener('click', (e) => {
+        e.stopPropagation();
+        desktopInput.value = '';
+        desktopClear.style.display = 'none';
+        renderSearchResults(desktopResults, '');
+        desktopInput.focus();
+      });
+    }
+
+    // Mobile input events
+    if (mobileInput) {
+      mobileInput.addEventListener('input', (e) => {
+        renderSearchResults(mobileResults, e.target.value);
+      });
+    }
+
+    // Mobile close triggers
+    if (mobileCloseBtn) {
+      mobileCloseBtn.addEventListener('click', closeMobileSearch);
+    }
+    if (mobileBackdrop) {
+      mobileBackdrop.addEventListener('click', closeMobileSearch);
+    }
+
+    // Tag pills click for both desktop and mobile
+    allTagPills.forEach(pill => {
+      pill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const term = pill.getAttribute('data-search-term') || pill.textContent.trim();
+        if (window.innerWidth <= 768) {
+          if (mobileInput) {
+            mobileInput.value = term;
+            renderSearchResults(mobileResults, term);
+          }
+        } else {
+          if (desktopInput) {
+            desktopInput.value = term;
+            if (desktopClear) desktopClear.style.display = 'flex';
+            if (desktopSearchWrap) desktopSearchWrap.classList.add('open');
+            renderSearchResults(desktopResults, term);
+            desktopInput.focus();
+          }
+        }
+      });
+    });
+
+    // Close desktop dropdown on outside click
+    document.addEventListener('click', (e) => {
+      if (desktopSearchWrap && !desktopSearchWrap.contains(e.target)) {
+        desktopSearchWrap.classList.remove('open');
+      }
+    });
+
+    // Escape key closes everything
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAllSearch();
+      }
     });
   }
 
