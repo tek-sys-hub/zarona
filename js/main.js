@@ -185,7 +185,7 @@ class ZaronaApp {
           </div>
           <div class="cart-item-bottom">
             <div class="qty-stepper">
-              <button class="qty-btn" data-qty-delta="-1" data-index="${idx}">−</button>
+              <button class="qty-btn" data-qty-delta="-1" data-index="${idx}">-</button>
               <span class="qty-number">${item.quantity}</span>
               <button class="qty-btn" data-qty-delta="1" data-index="${idx}">+</button>
             </div>

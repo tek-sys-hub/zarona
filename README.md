@@ -35,7 +35,7 @@
   - **Category Filter**: Checkbox filters with live counters for *T-Shirts*, *Hoodies*, *Sweatshirts*, *Shirts*, *Pants*, *Jackets*, and *Accessories*.
   - **Size Selector**: Multi-select pills (`XS`, `S`, `M`, `L`, `XL`, `XXL`).
   - **Color Swatches**: Visual color dots for interactive swatch selection.
-  - **Price Range Slider**: Real-time interactive price ceiling filter ($0 – $100+).
+  - **Price Range Slider**: Real-time interactive price ceiling filter ($0 to $100+).
   - **`< Clear Filters`**: Instant single-click filter reset.
 - **Sorting Controls**: Sort by *Newest*, *Best Selling*, *Price: Low to High*, or *Price: High to Low*.
 - **Responsive Controls**: Mobile-friendly filter drawer for smaller screens.
