@@ -73,6 +73,7 @@ class ZaronaApp {
 
   init() {
     this.initHeaderScroll();
+    this.initUserMenu();
     this.initCartDrawer();
     this.initSearchModal();
     this.initMobileDrawer();
@@ -97,6 +98,114 @@ class ZaronaApp {
         this.initHomePage();
       }
     });
+  }
+
+  loadUserSession() {
+    try {
+      const adminSession = JSON.parse(localStorage.getItem('zarona_admin_session') || 'null');
+      if (adminSession?.user) return adminSession.user;
+      const userSession = JSON.parse(localStorage.getItem('zarona_session') || 'null');
+      if (userSession?.user) return userSession.user;
+    } catch (e) {
+      console.warn('Could not parse session:', e);
+    }
+    return null;
+  }
+
+  // ------------------------------------------------------------------------
+  // USER ACCOUNT MENU & POPOVER
+  // ------------------------------------------------------------------------
+  initUserMenu() {
+    const trigger = document.getElementById('user-menu-trigger');
+    const popover = document.getElementById('user-dropdown-popover');
+    const dot = document.getElementById('user-active-dot');
+    if (!trigger) return;
+
+    const user = this.loadUserSession();
+
+    if (!user) {
+      if (dot) dot.style.display = 'none';
+      trigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = '/login.html';
+      });
+      return;
+    }
+
+    // User is logged in
+    if (dot) dot.style.display = 'block';
+
+    if (popover) {
+      const initial = (user.full_name || user.email || 'U').trim().charAt(0).toUpperCase();
+      const displayName = user.full_name || user.email.split('@')[0];
+      const isAdmin = user.role === 'admin';
+
+      popover.innerHTML = `
+        <div class="user-popover-header">
+          <div class="user-popover-avatar">${initial}</div>
+          <div class="user-popover-info">
+            <div class="user-popover-name">${displayName}</div>
+            <div class="user-popover-email" title="${user.email}">${user.email}</div>
+            <span class="user-role-badge ${isAdmin ? 'admin' : ''}">${isAdmin ? 'Admin' : 'Customer'}</span>
+          </div>
+        </div>
+
+        <div class="user-popover-divider"></div>
+
+        <div class="user-popover-links">
+          ${isAdmin ? `
+            <a href="/admin/index.html" class="user-popover-item admin-link">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+              <span>Admin Dashboard</span>
+            </a>
+          ` : ''}
+          <a href="/shop.html" class="user-popover-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line></svg>
+            <span>Explore Catalog</span>
+          </a>
+        </div>
+
+        <div class="user-popover-divider"></div>
+
+        <button type="button" class="user-popover-logout-btn" id="user-popover-logout-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Sign Out</span>
+        </button>
+      `;
+
+      // Trigger click toggles popover
+      trigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        popover.classList.toggle('active');
+      });
+
+      // Outside click closes popover
+      document.addEventListener('click', (e) => {
+        if (!popover.contains(e.target) && !trigger.contains(e.target)) {
+          popover.classList.remove('active');
+        }
+      });
+
+      // Escape closes popover
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') popover.classList.remove('active');
+      });
+
+      // Logout button click
+      const logoutBtn = document.getElementById('user-popover-logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          localStorage.removeItem('zarona_session');
+          localStorage.removeItem('zarona_admin_session');
+          this.showToast('Signed out successfully.');
+          setTimeout(() => {
+            window.location.reload();
+          }, 350);
+        });
+      }
+    }
   }
 
   // ------------------------------------------------------------------------

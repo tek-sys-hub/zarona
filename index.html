@@ -80,13 +80,19 @@
           </div>
         </div>
 
-        <!-- Account Link -->
-        <a href="/login.html" class="action-btn" aria-label="My Account">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-        </a>
+        <!-- Account Menu Trigger & Popover -->
+        <div class="user-menu-wrapper" id="user-menu-wrapper">
+          <button class="action-btn user-menu-trigger" id="user-menu-trigger" aria-label="My Account">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span class="user-active-dot" id="user-active-dot" style="display: none;"></span>
+          </button>
+
+          <!-- User Dropdown Popover -->
+          <div class="user-dropdown-popover" id="user-dropdown-popover"></div>
+        </div>
 
         <!-- Shopping Bag Trigger -->
         <button class="action-btn cart-trigger-btn" aria-label="View Shopping Bag">

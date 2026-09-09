@@ -2598,3 +2598,180 @@ input, select {
     padding: 2.25rem 1.5rem;
   }
 }
+
+/* ==========================================================================
+   USER MENU DROPDOWN POPOVER
+   ========================================================================== */
+.user-menu-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.user-active-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #D4AF37;
+  border: 1.5px solid #141414;
+  box-shadow: 0 0 6px #D4AF37;
+}
+
+.user-dropdown-popover {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  width: 280px;
+  background: rgba(18, 18, 18, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  padding: 1.15rem;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.user-dropdown-popover.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.user-popover-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.user-popover-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2b2b2b, #151515);
+  border: 1.5px solid rgba(212, 175, 55, 0.5);
+  color: #EDE8DE;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-popover-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.user-popover-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-popover-email {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.user-role-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-top: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.user-role-badge.admin {
+  background: rgba(212, 175, 55, 0.15);
+  color: #D4AF37;
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.user-popover-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0.85rem 0;
+}
+
+.user-popover-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.user-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.8);
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.user-popover-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+}
+
+.user-popover-item.admin-link {
+  color: #D4AF37;
+  font-weight: 500;
+}
+
+.user-popover-item.admin-link:hover {
+  background: rgba(212, 175, 55, 0.12);
+  color: #F3E5AB;
+}
+
+.user-popover-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.65rem;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #F87171;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.user-popover-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #FCA5A5;
+}
