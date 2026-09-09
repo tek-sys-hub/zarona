@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Zarona Admin</title>
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img src="/assets/images/logo.png" alt="Zarona">
+        <div class="sidebar-badge">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Overview</div>
+      <a href="./index.html" class="nav-item" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <div class="sidebar-section-label">Catalog</div>
+      <a href="./products.html" class="nav-item" data-page="products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Products
+      </a>
+      <div class="sidebar-section-label">Commerce</div>
+      <a href="./orders.html" class="nav-item" data-page="orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Orders
+        <span class="nav-badge" id="pending-badge" style="display:none"></span>
+      </a>
+      <a href="./customers.html" class="nav-item" data-page="customers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <div class="sidebar-section-label">Store</div>
+      <a href="/" class="nav-item" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Visit Store
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-user-info">
+        <div class="admin-avatar" id="admin-avatar-init">A</div>
+        <div style="flex:1;min-width:0;">
+          <div class="admin-user-name" id="admin-user-name">Admin</div>
+          <div class="admin-user-role">Administrator</div>
+        </div>
+        <button class="btn-ghost btn-icon" id="logout-btn" title="Logout">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="top-bar">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <button class="btn-ghost btn-icon" id="sidebar-toggle" style="display:none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="top-bar-title">Dashboard</span>
+      </div>
+      <div class="top-bar-right">
+        <span style="font-size:0.75rem;color:var(--text-muted);" id="top-date"></span>
+        <a href="./products.html" class="btn btn-primary btn-sm">+ Add Product</a>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <!-- STATS GRID -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-header"><span class="stat-label">Total Revenue</span><div class="stat-icon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div></div><div class="stat-value" id="stat-revenue">—</div><div class="stat-sub">from all orders</div></div>
+        <div class="stat-card"><div class="stat-header"><span class="stat-label">Total Orders</span><div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div></div><div class="stat-value" id="stat-orders">—</div><div class="stat-sub" id="stat-orders-sub">pending orders</div></div>
+        <div class="stat-card"><div class="stat-header"><span class="stat-label">Products</span><div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div></div><div class="stat-value" id="stat-products">—</div><div class="stat-sub">active in catalog</div></div>
+        <div class="stat-card"><div class="stat-header"><span class="stat-label">Customers</span><div class="stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><div class="stat-value" id="stat-customers">—</div><div class="stat-sub">registered accounts</div></div>
+      </div>
+
+      <!-- RECENT ORDERS + TOP PRODUCTS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+
+        <!-- Recent Orders -->
+        <div class="table-card">
+          <div class="table-card-header">
+            <span class="table-card-title">Recent Orders</span>
+            <a href="./orders.html" class="btn btn-ghost btn-sm">View all →</a>
+          </div>
+          <div id="recent-orders-body">
+            <div style="padding:2rem;text-align:center;color:var(--text-muted);font-size:0.82rem;">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Quick Actions + Status Breakdown -->
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div class="table-card">
+            <div class="table-card-header">
+              <span class="table-card-title">Order Status</span>
+            </div>
+            <div id="status-breakdown" style="padding:1rem;">
+              <div style="color:var(--text-muted);font-size:0.82rem;">Loading...</div>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-card-header">
+              <span class="table-card-title">Quick Actions</span>
+            </div>
+            <div style="padding:1rem;display:flex;flex-direction:column;gap:0.5rem;">
+              <a href="./products.html" class="btn btn-secondary" style="justify-content:flex-start;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add New Product
+              </a>
+              <a href="./orders.html" class="btn btn-secondary" style="justify-content:flex-start;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>
+                Manage Orders
+              </a>
+              <a href="./customers.html" class="btn btn-secondary" style="justify-content:flex-start;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                View Customers
+              </a>
+              <a href="/" target="_blank" class="btn btn-secondary" style="justify-content:flex-start;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Open Live Store
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initSidebar, apiCall, formatCurrency, formatDateTime, statusBadge } from './js/admin.js';
+
+  initSidebar('dashboard');
+
+  // Date
+  document.getElementById('top-date').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+
+  async function loadDashboard() {
+    try {
+      // Load products count
+      const prodData = await apiCall('/api/products');
+      const productCount = prodData.products?.length || 0;
+      document.getElementById('stat-products').textContent = productCount;
+
+      // Load orders
+      const ordData = await apiCall('/api/orders?limit=50');
+      const orders = ordData.orders || [];
+      const totalOrders = ordData.total || 0;
+      const pendingCount = orders.filter(o => o.status === 'pending').length;
+      const revenue = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + (o.total || 0), 0);
+
+      document.getElementById('stat-revenue').textContent = formatCurrency(revenue);
+      document.getElementById('stat-orders').textContent = totalOrders;
+      document.getElementById('stat-orders-sub').textContent = `${pendingCount} pending`;
+
+      if (pendingCount > 0) {
+        const badge = document.getElementById('pending-badge');
+        badge.textContent = pendingCount;
+        badge.style.display = '';
+      }
+
+      // Load customers
+      const custData = await apiCall('/api/customers?limit=1');
+      document.getElementById('stat-customers').textContent = custData.total || 0;
+
+      // Recent orders table
+      const recentEl = document.getElementById('recent-orders-body');
+      if (orders.length === 0) {
+        recentEl.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/></svg><p class="empty-state-text">No orders yet</p></div>`;
+      } else {
+        const recent = orders.slice(0, 6);
+        recentEl.innerHTML = `
+          <table class="admin-table">
+            <thead><tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr></thead>
+            <tbody>
+              ${recent.map(o => `
+                <tr>
+                  <td style="color:var(--text-primary);font-weight:600;">#${o.id.slice(-6).toUpperCase()}</td>
+                  <td>${o.profiles?.full_name || o.guest_name || o.guest_email || 'Guest'}</td>
+                  <td>${formatCurrency(o.total)}</td>
+                  <td>${statusBadge(o.status)}</td>
+                  <td>${formatDateTime(o.created_at)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
+      // Status breakdown
+      const statusCounts = {};
+      orders.forEach(o => { statusCounts[o.status] = (statusCounts[o.status] || 0) + 1; });
+      const statuses = ['pending','processing','shipped','delivered','cancelled'];
+      document.getElementById('status-breakdown').innerHTML = statuses.map(s => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-subtle);">
+          <span>${statusBadge(s)}</span>
+          <span style="font-size:0.82rem;font-weight:600;color:var(--text-primary);">${statusCounts[s] || 0}</span>
+        </div>
+      `).join('');
+
+    } catch (err) {
+      console.error('Dashboard load error:', err);
+    }
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>

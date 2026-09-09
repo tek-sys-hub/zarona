@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Zarona</title>
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body class="login-page">
+
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="/assets/images/logo.png" alt="Zarona">
+      <div class="login-logo-badge">Admin Panel</div>
+    </div>
+
+    <h1 class="login-title">Welcome back</h1>
+
+    <div class="login-error" id="login-error"></div>
+
+    <form id="login-form" autocomplete="off">
+      <div class="form-group">
+        <label class="form-label" for="admin-email">Email Address</label>
+        <input
+          type="email"
+          id="admin-email"
+          class="form-input"
+          placeholder="admin@zarona.com"
+          required
+          autocomplete="email"
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="admin-password">Password</label>
+        <input
+          type="password"
+          id="admin-password"
+          class="form-input"
+          placeholder="Enter your password"
+          required
+          autocomplete="current-password"
+        >
+      </div>
+
+      <div style="margin-top: 1.5rem;">
+        <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+          Sign In to Dashboard
+        </button>
+      </div>
+    </form>
+
+    <p style="text-align: center; margin-top: 1.25rem; font-size: 0.75rem; color: var(--text-muted);">
+      Zarona Admin — Restricted Access
+    </p>
+  </div>
+
+  <script type="module">
+    const SUPABASE_URL  = import.meta.env.VITE_SUPABASE_URL;
+    const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    const form     = document.getElementById('login-form');
+    const errorEl  = document.getElementById('login-error');
+    const loginBtn = document.getElementById('login-btn');
+
+    // If already logged in as admin, redirect
+    const session = JSON.parse(localStorage.getItem('zarona_admin_session') || 'null');
+    if (session?.token) {
+      window.location.href = '/admin/index.html';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.classList.remove('show');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Signing in...';
+
+      const email    = document.getElementById('admin-email').value.trim();
+      const password = document.getElementById('admin-password').value;
+
+      try {
+        const res = await fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Invalid credentials');
+        }
+
+        if (data.user.role !== 'admin') {
+          throw new Error('Access denied: admin account required');
+        }
+
+        // Save session
+        localStorage.setItem('zarona_admin_session', JSON.stringify({
+          token: data.token,
+          refresh_token: data.refresh_token,
+          user: data.user,
+        }));
+
+        window.location.href = '/admin/index.html';
+
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.add('show');
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In to Dashboard';
+      }
+    });
+  </script>
+</body>
+</html>

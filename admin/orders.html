@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders — Zarona Admin</title>
+  <link rel="icon" href="/assets/images/logo.png">
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img src="/assets/images/logo.png" alt="Zarona">
+        <div class="sidebar-badge">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Overview</div>
+      <a href="./index.html" class="nav-item" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <div class="sidebar-section-label">Catalog</div>
+      <a href="./products.html" class="nav-item" data-page="products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Products
+      </a>
+      <div class="sidebar-section-label">Commerce</div>
+      <a href="./orders.html" class="nav-item" data-page="orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Orders
+      </a>
+      <a href="./customers.html" class="nav-item" data-page="customers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <div class="sidebar-section-label">Store</div>
+      <a href="/" class="nav-item" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Visit Store
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-user-info">
+        <div class="admin-avatar" id="admin-avatar-init">A</div>
+        <div style="flex:1;min-width:0;">
+          <div class="admin-user-name" id="admin-user-name">Admin</div>
+          <div class="admin-user-role">Administrator</div>
+        </div>
+        <button class="btn-ghost btn-icon" id="logout-btn" title="Logout">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="top-bar">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <button class="btn-ghost btn-icon" id="sidebar-toggle" style="display:none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="top-bar-title">Orders</span>
+      </div>
+      <div class="top-bar-right">
+        <!-- Status filter pills -->
+        <div style="display:flex;gap:0.3rem;" id="status-pills">
+          <button class="btn btn-secondary btn-sm active-pill" data-status="">All</button>
+          <button class="btn btn-secondary btn-sm" data-status="pending">Pending</button>
+          <button class="btn btn-secondary btn-sm" data-status="processing">Processing</button>
+          <button class="btn btn-secondary btn-sm" data-status="shipped">Shipped</button>
+          <button class="btn btn-secondary btn-sm" data-status="delivered">Delivered</button>
+          <button class="btn btn-secondary btn-sm" data-status="cancelled">Cancelled</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="table-card">
+        <div class="table-card-header">
+          <span class="table-card-title" id="orders-count-label">All Orders</span>
+          <div class="search-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="order-search" placeholder="Search by customer or order ID...">
+          </div>
+        </div>
+        <div id="orders-table-body">
+          <div style="padding:3rem;text-align:center;color:var(--text-muted);">Loading orders...</div>
+        </div>
+        <div class="pagination" id="orders-pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="modal-overlay" id="order-detail-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="order-modal-title">Order Details</span>
+      <button class="modal-close" id="close-order-modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="order-modal-body"></div>
+    <div class="modal-footer">
+      <select class="form-select" id="order-status-select" style="width:160px;">
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <button class="btn btn-primary" id="update-order-status-btn">Update Status</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initSidebar, apiCall, showToast, formatCurrency, formatDateTime, statusBadge } from './js/admin.js';
+
+  initSidebar('orders');
+
+  let currentPage = 1;
+  let currentStatus = '';
+  let currentOrderId = null;
+  const LIMIT = 15;
+
+  // ── Status Pills ───────────────────────────────────────────────────────────
+  document.querySelectorAll('#status-pills button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#status-pills button').forEach(b => b.style.background = '');
+      btn.style.background = 'var(--gold-dim)';
+      btn.style.color = 'var(--gold)';
+      currentStatus = btn.dataset.status;
+      currentPage = 1;
+      loadOrders();
+    });
+  });
+
+  // Highlight first pill
+  document.querySelector('#status-pills button').style.cssText = 'background:var(--gold-dim);color:var(--gold);';
+
+  // ── Load Orders ────────────────────────────────────────────────────────────
+  async function loadOrders() {
+    const params = new URLSearchParams({ page: currentPage, limit: LIMIT });
+    if (currentStatus) params.set('status', currentStatus);
+
+    try {
+      const data = await apiCall(`/api/orders?${params}`);
+      const orders = data.orders || [];
+      const total = data.total || 0;
+
+      document.getElementById('orders-count-label').textContent =
+        `${currentStatus ? currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1) : 'All'} Orders (${total})`;
+
+      renderOrdersTable(orders);
+      renderPagination(total);
+    } catch (err) {
+      document.getElementById('orders-table-body').innerHTML =
+        `<div class="empty-state"><p class="empty-state-text">Failed to load: ${err.message}</p></div>`;
+    }
+  }
+
+  function renderOrdersTable(orders) {
+    const el = document.getElementById('orders-table-body');
+    if (orders.length === 0) {
+      el.innerHTML = `<div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/></svg>
+        <p class="empty-state-text">No orders found</p>
+      </div>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <table class="admin-table">
+        <thead><tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody>
+          ${orders.map(o => `
+            <tr>
+              <td style="font-weight:700;color:var(--text-primary);">#${o.id.slice(-6).toUpperCase()}</td>
+              <td>
+                <div style="font-weight:500;color:var(--text-primary);">${o.profiles?.full_name || o.guest_name || 'Guest'}</div>
+                <div style="font-size:0.72rem;color:var(--text-muted);">${o.profiles?.email || o.guest_email || ''}</div>
+              </td>
+              <td>${(o.order_items || []).length} item(s)</td>
+              <td style="font-weight:600;color:var(--text-primary);">${formatCurrency(o.total)}</td>
+              <td>${statusBadge(o.status)}</td>
+              <td>${formatDateTime(o.created_at)}</td>
+              <td>
+                <button class="btn btn-secondary btn-sm" onclick="viewOrder('${o.id}')">View</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function renderPagination(total) {
+    const totalPages = Math.ceil(total / LIMIT);
+    const el = document.getElementById('orders-pagination');
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+
+    el.innerHTML = `
+      <span class="pagination-info">Showing ${(currentPage - 1) * LIMIT + 1}–${Math.min(currentPage * LIMIT, total)} of ${total}</span>
+      <button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>
+      ${Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map(p =>
+        `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`
+      ).join('')}
+      <button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>
+    `;
+  }
+
+  window.goPage = (p) => { currentPage = p; loadOrders(); };
+
+  // ── Search ─────────────────────────────────────────────────────────────────
+  let searchTimer;
+  document.getElementById('order-search').addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(loadOrders, 300);
+  });
+
+  // ── View Order Modal ───────────────────────────────────────────────────────
+  window.viewOrder = async (id) => {
+    currentOrderId = id;
+    document.getElementById('order-modal-body').innerHTML = '<div style="padding:1rem;color:var(--text-muted);">Loading...</div>';
+    document.getElementById('order-detail-modal').classList.add('open');
+
+    try {
+      const data = await apiCall(`/api/orders/${id}`);
+      const o = data.order;
+      document.getElementById('order-modal-title').textContent = `Order #${o.id.slice(-6).toUpperCase()}`;
+      document.getElementById('order-status-select').value = o.status;
+
+      const addr = o.shipping_address || {};
+      document.getElementById('order-modal-body').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.25rem;">CUSTOMER</div>
+            <div style="font-weight:600;color:var(--text-primary);">${o.profiles?.full_name || o.guest_name || 'Guest'}</div>
+            <div style="font-size:0.78rem;color:var(--text-secondary);">${o.profiles?.email || o.guest_email || ''}</div>
+            <div style="font-size:0.78rem;color:var(--text-secondary);">${o.profiles?.phone || ''}</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.25rem;">SHIPPING ADDRESS</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.6;">
+              ${addr.line1 || ''}<br>
+              ${addr.city || ''}, ${addr.state || ''} ${addr.zip || ''}<br>
+              ${addr.country || ''}
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.5rem;">ORDER ITEMS</div>
+        <div style="border:1px solid var(--border-subtle);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:1rem;">
+          ${(o.order_items || []).map(item => `
+            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border-bottom:1px solid var(--border-subtle);">
+              <img src="${item.product_image}" style="width:42px;height:50px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'">
+              <div style="flex:1;">
+                <div style="font-weight:600;color:var(--text-primary);font-size:0.85rem;">${item.product_name}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);">Size: ${item.size} ${item.color ? '· '+item.color : ''} · Qty: ${item.quantity}</div>
+              </div>
+              <div style="font-weight:600;color:var(--text-primary);">${formatCurrency(item.total_price)}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="background:var(--bg-hover);border-radius:var(--radius-sm);padding:0.85rem 1rem;">
+          <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.3rem;">
+            <span>Subtotal</span><span>${formatCurrency(o.subtotal)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.3rem;">
+            <span>Shipping</span><span>${o.shipping_cost === 0 ? 'Free' : formatCurrency(o.shipping_cost)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-weight:700;color:var(--text-primary);border-top:1px solid var(--border-subtle);padding-top:0.4rem;margin-top:0.4rem;">
+            <span>Total</span><span>${formatCurrency(o.total)}</span>
+          </div>
+        </div>
+
+        ${o.notes ? `<div style="margin-top:1rem;padding:0.75rem;background:var(--gold-dim);border-radius:var(--radius-sm);font-size:0.8rem;color:var(--text-secondary);"><strong style="color:var(--gold);">Note:</strong> ${o.notes}</div>` : ''}
+      `;
+    } catch (err) {
+      document.getElementById('order-modal-body').innerHTML = `<p style="color:var(--red);">Error: ${err.message}</p>`;
+    }
+  };
+
+  document.getElementById('close-order-modal').addEventListener('click', () => {
+    document.getElementById('order-detail-modal').classList.remove('open');
+  });
+
+  document.getElementById('order-detail-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+  });
+
+  // ── Update Status ──────────────────────────────────────────────────────────
+  document.getElementById('update-order-status-btn').addEventListener('click', async () => {
+    const status = document.getElementById('order-status-select').value;
+    try {
+      await apiCall(`/api/orders/${currentOrderId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      });
+      showToast(`Order marked as ${status}`);
+      document.getElementById('order-detail-modal').classList.remove('open');
+      loadOrders();
+    } catch (err) {
+      showToast(`Error: ${err.message}`, 'error');
+    }
+  });
+
+  loadOrders();
+</script>
+</body>
+</html>
