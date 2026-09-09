@@ -10,13 +10,13 @@ export const products = [
     rating: 4.9,
     reviewsCount: 142,
     colors: [
-      { name: "Noir Black", hex: "#151515", image: "assets/images/products/tee_black.jpg" },
-      { name: "Bone White", hex: "#EDE8DF", image: "assets/images/products/tee_white_male.jpg" },
-      { name: "Alabaster", hex: "#DCD4C7", image: "assets/images/products/tee_white_female.jpg" }
+      { name: "Noir Black", hex: "#151515", image: "/assets/images/products/tee_black.jpg" },
+      { name: "Bone White", hex: "#EDE8DF", image: "/assets/images/products/tee_white_male.jpg" },
+      { name: "Alabaster", hex: "#DCD4C7", image: "/assets/images/products/tee_white_female.jpg" }
     ],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    primaryImage: "assets/images/products/tee_black.jpg",
-    secondaryImage: "assets/images/products/tee_white_male.jpg",
+    primaryImage: "/assets/images/products/tee_black.jpg",
+    secondaryImage: "/assets/images/products/tee_white_male.jpg",
     description: "Cut from ultra-heavyweight 280GSM organic combed cotton with dropped shoulders and a boxy relaxed silhouette. Finished with subtle tonal embroidered 'Z' signature monogram.",
     details: [
       "100% Organic Combed Cotton (280 GSM)",
@@ -38,13 +38,13 @@ export const products = [
     rating: 5.0,
     reviewsCount: 218,
     colors: [
-      { name: "Noir Black", hex: "#1A1A1A", image: "assets/images/products/hoodie_zip_black.jpg" },
-      { name: "Charcoal Heather", hex: "#484440", image: "assets/images/products/hoodie_charcoal.jpg" },
-      { name: "Alabaster Cream", hex: "#EAE4D8", image: "assets/images/products/hoodie_cream_female.jpg" }
+      { name: "Noir Black", hex: "#1A1A1A", image: "/assets/images/products/hoodie_zip_black.jpg" },
+      { name: "Charcoal Heather", hex: "#484440", image: "/assets/images/products/hoodie_charcoal.jpg" },
+      { name: "Alabaster Cream", hex: "#EAE4D8", image: "/assets/images/products/hoodie_cream_female.jpg" }
     ],
     sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    primaryImage: "assets/images/products/hoodie_charcoal.jpg",
-    secondaryImage: "assets/images/products/hoodie_zip_black.jpg",
+    primaryImage: "/assets/images/products/hoodie_charcoal.jpg",
+    secondaryImage: "/assets/images/products/hoodie_zip_black.jpg",
     description: "Constructed with 450GSM custom loopback French terry. Features double-layered structured hood, kangaroo pocket, ribbed cuffs, and iconic embroidered chest emblem.",
     details: [
       "450 GSM Heavyweight Loopback French Terry",
@@ -66,13 +66,13 @@ export const products = [
     rating: 4.8,
     reviewsCount: 89,
     colors: [
-      { name: "Sand Ecru", hex: "#D6CCA9", image: "assets/images/products/shirt_linen_sand.jpg" },
-      { name: "Warm Taupe", hex: "#B8A78F", image: "assets/images/products/shirt_linen_sand.jpg" },
-      { name: "Charcoal Noir", hex: "#222222", image: "assets/images/products/longsleeve_black.jpg" }
+      { name: "Sand Ecru", hex: "#D6CCA9", image: "/assets/images/products/shirt_linen_sand.jpg" },
+      { name: "Warm Taupe", hex: "#B8A78F", image: "/assets/images/products/shirt_linen_sand.jpg" },
+      { name: "Charcoal Noir", hex: "#222222", image: "/assets/images/products/longsleeve_black.jpg" }
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
-    primaryImage: "assets/images/products/shirt_linen_sand.jpg",
-    secondaryImage: "assets/images/products/shirt_linen_sand.jpg",
+    primaryImage: "/assets/images/products/shirt_linen_sand.jpg",
+    secondaryImage: "/assets/images/products/shirt_linen_sand.jpg",
     description: "Crafted from 100% breathable European washed flax linen. Relaxed camp-collar profile designed for fluid drape and effortless unisex elegance.",
     details: [
       "100% Premium European Washed Linen",
@@ -94,13 +94,13 @@ export const products = [
     rating: 4.9,
     reviewsCount: 96,
     colors: [
-      { name: "Charcoal Grey", hex: "#3D3D3C", image: "assets/images/products/pants_relaxed.jpg" },
-      { name: "Olive Khaki", hex: "#555246", image: "assets/images/products/pants_relaxed.jpg" },
-      { name: "Stone Tan", hex: "#BCB3A4", image: "assets/images/products/pants_relaxed.jpg" }
+      { name: "Charcoal Grey", hex: "#3D3D3C", image: "/assets/images/products/pants_relaxed.jpg" },
+      { name: "Olive Khaki", hex: "#555246", image: "/assets/images/products/pants_relaxed.jpg" },
+      { name: "Stone Tan", hex: "#BCB3A4", image: "/assets/images/products/pants_relaxed.jpg" }
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
-    primaryImage: "assets/images/products/pants_relaxed.jpg",
-    secondaryImage: "assets/images/products/pants_relaxed.jpg",
+    primaryImage: "/assets/images/products/pants_relaxed.jpg",
+    secondaryImage: "/assets/images/products/pants_relaxed.jpg",
     description: "Tailored with a generous wide-leg drape, single pleat accents, elasticated waistband with internal drawcord, and deep welt pockets.",
     details: [
       "Cotton-Tencel blend with soft fluid movement",
@@ -122,12 +122,12 @@ export const products = [
     rating: 4.9,
     reviewsCount: 174,
     colors: [
-      { name: "Forest Green", hex: "#233329", image: "assets/images/products/varsity_green.jpg" },
-      { name: "Washed Stone", hex: "#9E9A90", image: "assets/images/products/varsity_green_back.jpg" }
+      { name: "Forest Green", hex: "#233329", image: "/assets/images/products/varsity_green.jpg" },
+      { name: "Washed Stone", hex: "#9E9A90", image: "/assets/images/products/varsity_green_back.jpg" }
     ],
     sizes: ["S", "M", "L", "XL", "XXL"],
-    primaryImage: "assets/images/products/varsity_green.jpg",
-    secondaryImage: "assets/images/products/varsity_green_back.jpg",
+    primaryImage: "/assets/images/products/varsity_green.jpg",
+    secondaryImage: "/assets/images/products/varsity_green_back.jpg",
     description: "Heritage athletic crewneck in dense brushed fleece featuring archival felt appliqué Zarona Unisex typography and ribbed trims.",
     details: [
       "400 GSM Ultra-Soft Brushed Interior Fleece",
@@ -149,12 +149,12 @@ export const products = [
     rating: 5.0,
     reviewsCount: 64,
     colors: [
-      { name: "Caramel Brown", hex: "#6E452B", image: "assets/images/products/jacket_corduroy_brown.jpg" },
-      { name: "Noir Black", hex: "#222222", image: "assets/images/products/jacket_corduroy_female.jpg" }
+      { name: "Caramel Brown", hex: "#6E452B", image: "/assets/images/products/jacket_corduroy_brown.jpg" },
+      { name: "Noir Black", hex: "#222222", image: "/assets/images/products/jacket_corduroy_female.jpg" }
     ],
     sizes: ["S", "M", "L", "XL"],
-    primaryImage: "assets/images/products/jacket_corduroy_brown.jpg",
-    secondaryImage: "assets/images/products/jacket_corduroy_female.jpg",
+    primaryImage: "/assets/images/products/jacket_corduroy_brown.jpg",
+    secondaryImage: "/assets/images/products/jacket_corduroy_female.jpg",
     description: "Vintage-inspired 8-wale corduroy chore jacket with antique brass dual-zip hardware, reinforced chest pockets, and relaxed dropped shoulders.",
     details: [
       "100% Heavy Cotton 8-Wale Corduroy",
@@ -176,12 +176,12 @@ export const products = [
     rating: 4.9,
     reviewsCount: 82,
     colors: [
-      { name: "Alabaster Cream", hex: "#E9E3D5", image: "assets/images/products/knit_cream_female.jpg" },
-      { name: "Dark Chocolate", hex: "#3A2B23", image: "assets/images/products/knit_chocolate.jpg" }
+      { name: "Alabaster Cream", hex: "#E9E3D5", image: "/assets/images/products/knit_cream_female.jpg" },
+      { name: "Dark Chocolate", hex: "#3A2B23", image: "/assets/images/products/knit_chocolate.jpg" }
     ],
     sizes: ["XS", "S", "M", "L", "XL"],
-    primaryImage: "assets/images/products/knit_cream_female.jpg",
-    secondaryImage: "assets/images/products/knit_chocolate.jpg",
+    primaryImage: "/assets/images/products/knit_cream_female.jpg",
+    secondaryImage: "/assets/images/products/knit_chocolate.jpg",
     description: "Heavyweight tactile rib-knit spun from soft wool-cotton blend. Relaxed silhouette with exaggerated cuffs and crewneck collar.",
     details: [
       "70% Organic Cotton, 30% Merino Wool",
@@ -202,11 +202,11 @@ export const products = [
     rating: 4.8,
     reviewsCount: 115,
     colors: [
-      { name: "Noir Black", hex: "#151515", image: "assets/images/products/cap_black.jpg" }
+      { name: "Noir Black", hex: "#151515", image: "/assets/images/products/cap_black.jpg" }
     ],
     sizes: ["One Size"],
-    primaryImage: "assets/images/products/cap_black.jpg",
-    secondaryImage: "assets/images/products/cap_black.jpg",
+    primaryImage: "/assets/images/products/cap_black.jpg",
+    secondaryImage: "/assets/images/products/cap_black.jpg",
     description: "Unstructured 6-panel silhouette in 100% washed cotton twill with low-profile crown and tonal embroidered 'Z' emblem.",
     details: [
       "100% Washed Cotton Twill",
