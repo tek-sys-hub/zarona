@@ -486,11 +486,43 @@ class ZaronaApp {
       return;
     }
 
+    const user = this.loadUserSession();
     this.closeCart();
 
     const overlay = document.getElementById('checkout-modal-overlay');
     const content = document.getElementById('checkout-modal-content');
     if (!overlay || !content) return;
+
+    if (!user) {
+      content.innerHTML = `
+        <div class="checkout-header">
+          <div>
+            <h2 class="checkout-header-title">Membership Required</h2>
+            <div class="checkout-header-subtitle">Join or sign in to complete your acquisition</div>
+          </div>
+        </div>
+        <div style="padding: 3rem 2rem; text-align: center;">
+          <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(212, 175, 55, 0.12); border: 1.5px solid #D4AF37; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; color: #D4AF37;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <h3 style="font-family: var(--font-serif); font-size: 1.65rem; color: #EDE8DE; margin-bottom: 0.5rem;">Join Zarona to Place Order</h3>
+          <p style="font-size: 0.86rem; color: rgba(255, 255, 255, 0.65); max-width: 420px; margin: 0 auto 1.75rem; line-height: 1.55;">
+            To place an order and access live courier dispatch tracking, you must have an account. Your shopping bag has been saved.
+          </p>
+          <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
+            <a href="/signup.html" class="btn btn-primary" style="padding: 0.8rem 2rem; border-radius: 999px; background: #D4AF37; color: #141414; font-weight: 700; text-decoration: none; font-size: 0.85rem;">
+              Create Account (Sign Up)
+            </a>
+            <a href="/login.html" class="btn btn-secondary" style="padding: 0.8rem 2rem; border-radius: 999px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); color: #FFFFFF; font-weight: 600; text-decoration: none; font-size: 0.85rem;">
+              Sign In
+            </a>
+          </div>
+        </div>
+      `;
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      return;
+    }
 
     this.renderCheckoutForm();
 
@@ -768,9 +800,20 @@ class ZaronaApp {
         payment_method: paymentLabel
       };
 
+      const adminSession = JSON.parse(localStorage.getItem('zarona_admin_session') || 'null');
+      const userSession = JSON.parse(localStorage.getItem('zarona_session') || 'null');
+      const token = adminSession?.token || userSession?.token;
+
+      if (!token) {
+        throw new Error('You must be signed in to place an order. Please sign up or log in.');
+      }
+
       const res = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(payload)
       });
 

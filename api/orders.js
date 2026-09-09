@@ -45,19 +45,21 @@ export default async function handler(req, res) {
     });
   }
 
-  // ── POST /api/orders — Place new order ────────────────────────────────────
+  // ── POST /api/orders — Place new order (user must be signed up) ───────────
   if (req.method === 'POST') {
+    const { user, error: authError } = await verifyAuth(req);
+    if (authError || !user) {
+      return sendError(res, 401, 'Please sign up or sign in to complete your order');
+    }
+
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const { items, shipping_address, guest_email, guest_name, user_id, notes, payment_method } = body;
+    const { items, shipping_address, notes, payment_method } = body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return sendError(res, 400, 'Order must contain at least one item');
     }
     if (!shipping_address) {
       return sendError(res, 400, 'Shipping address is required');
-    }
-    if (!guest_email && !user_id) {
-      return sendError(res, 400, 'Either guest_email or user_id is required');
     }
 
     // Validate products exist and compute totals
@@ -116,9 +118,9 @@ export default async function handler(req, res) {
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
       .insert([{
-        user_id: user_id || null,
-        guest_email: guest_email || null,
-        guest_name: guest_name || null,
+        user_id: user.id,
+        guest_email: user.email,
+        guest_name: user.user_metadata?.full_name || (typeof shipping_address === 'object' ? shipping_address.name : '') || '',
         status: 'pending',
         subtotal,
         shipping_cost: shippingCost,
