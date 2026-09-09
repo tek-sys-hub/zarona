@@ -49,6 +49,15 @@
 - **Instant Search Overlay**: Modal search with autocomplete suggestions and live product matching.
 - **Mobile Navigation Drawer**: Smooth slide-over navigation matching the mobile design layout.
 
+### 4. Authentication Experience (`login.html` & `signup.html`)
+- **Split Brand Panel**: High-fashion fabric texture background with *ZARONA UNISEX* branding and campaign slogans (*"Timeless Styles For Everyone"* / *"Style Without Limits"*).
+- **Form Controls**:
+  - Email/Username, Password with toggleable eye icon (`show`/`hide`), and Confirm Password.
+  - Remember me checkbox and Forgot Password link.
+  - Google and Apple one-click social authentication buttons.
+  - Seamless navigation back to the store and toggling between Login and Signup.
+- **Mobile Responsive Layout**: Mobile header banner featuring model photography and minimal navigation.
+
 ---
 
 ## ✦ Project Structure
