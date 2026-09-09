@@ -1,11 +1,17 @@
 {
   "name": "zarona-unisex",
   "version": "1.0.0",
+  "type": "module",
   "description": "Zarona Unisex - Luxury Minimalist E-Commerce Experience",
   "scripts": {
     "dev": "vite --port 3000 --host",
     "build": "vite build",
     "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "formidable": "^3.5.4",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "vite": "^5.4.2"

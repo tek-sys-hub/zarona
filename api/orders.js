@@ -1,0 +1,127 @@
+// =============================================================================
+//  GET  /api/orders  — List all orders (admin only)
+//  POST /api/orders  — Place a new order (customer or guest)
+// =============================================================================
+
+import { supabaseAdmin } from './_supabase.js';
+import { handleCors, verifyAdmin, sendError, sendSuccess } from './_middleware.js';
+
+export default async function handler(req, res) {
+  if (handleCors(req, res)) return;
+
+  // ── GET /api/orders (admin only) ──────────────────────────────────────────
+  if (req.method === 'GET') {
+    const { user, error: authError } = await verifyAdmin(req);
+    if (authError) return sendError(res, 401, authError);
+
+    const { status, page = 1, limit = 20 } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    let query = supabaseAdmin
+      .from('orders')
+      .select(`
+        *,
+        profiles:user_id (full_name, email),
+        order_items (*)
+      `, { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + parseInt(limit) - 1);
+
+    if (status) query = query.eq('status', status);
+
+    const { data, error, count } = await query;
+    if (error) return sendError(res, 500, error.message);
+
+    return sendSuccess(res, {
+      orders: data || [],
+      total: count || 0,
+      page: parseInt(page),
+      limit: parseInt(limit),
+    });
+  }
+
+  // ── POST /api/orders — Place new order ────────────────────────────────────
+  if (req.method === 'POST') {
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const { items, shipping_address, guest_email, guest_name, user_id, notes } = body;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return sendError(res, 400, 'Order must contain at least one item');
+    }
+    if (!shipping_address) {
+      return sendError(res, 400, 'Shipping address is required');
+    }
+    if (!guest_email && !user_id) {
+      return sendError(res, 400, 'Either guest_email or user_id is required');
+    }
+
+    // Validate products exist and compute totals
+    const productIds = items.map(i => i.product_id);
+    const { data: products, error: productsError } = await supabaseAdmin
+      .from('products')
+      .select('id, name, price, primary_image, stock')
+      .in('id', productIds)
+      .eq('is_active', true);
+
+    if (productsError) return sendError(res, 500, productsError.message);
+
+    const productMap = Object.fromEntries(products.map(p => [p.id, p]));
+    let subtotal = 0;
+    const orderItems = [];
+
+    for (const item of items) {
+      const product = productMap[item.product_id];
+      if (!product) return sendError(res, 400, `Product not found: ${item.product_id}`);
+      if (!item.size) return sendError(res, 400, `Size is required for product: ${product.name}`);
+
+      const qty = parseInt(item.quantity) || 1;
+      const unitPrice = product.price;
+      const totalPrice = unitPrice * qty;
+      subtotal += totalPrice;
+
+      orderItems.push({
+        product_id: product.id,
+        product_name: product.name,
+        product_image: product.primary_image,
+        quantity: qty,
+        size: item.size,
+        color: item.color || null,
+        unit_price: unitPrice,
+        total_price: totalPrice,
+      });
+    }
+
+    const shippingCost = subtotal >= 50 ? 0 : 5.99;
+    const total = subtotal + shippingCost;
+
+    // Create order
+    const { data: order, error: orderError } = await supabaseAdmin
+      .from('orders')
+      .insert([{
+        user_id: user_id || null,
+        guest_email: guest_email || null,
+        guest_name: guest_name || null,
+        status: 'pending',
+        subtotal,
+        shipping_cost: shippingCost,
+        total,
+        shipping_address,
+        notes: notes || null,
+      }])
+      .select()
+      .single();
+
+    if (orderError) return sendError(res, 500, orderError.message);
+
+    // Insert order items
+    const { error: itemsError } = await supabaseAdmin
+      .from('order_items')
+      .insert(orderItems.map(item => ({ ...item, order_id: order.id })));
+
+    if (itemsError) return sendError(res, 500, itemsError.message);
+
+    return sendSuccess(res, { order: { ...order, items: orderItems } }, 201);
+  }
+
+  return sendError(res, 405, 'Method not allowed');
+}
