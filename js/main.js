@@ -369,10 +369,15 @@ class ZaronaApp {
           openMobileSearch();
         } else {
           if (desktopSearchWrap) {
-            desktopSearchWrap.classList.toggle('open');
-            if (desktopSearchWrap.classList.contains('open') && desktopInput) {
-              desktopInput.focus();
-              renderSearchResults(desktopResults, desktopInput.value);
+            const isCurrentlyOpen = desktopSearchWrap.classList.contains('open');
+            if (isCurrentlyOpen) {
+              closeDesktopSearch();
+            } else {
+              desktopSearchWrap.classList.add('open');
+              if (desktopInput) {
+                setTimeout(() => desktopInput.focus(), 60);
+                renderSearchResults(desktopResults, desktopInput.value);
+              }
             }
           }
         }
@@ -390,9 +395,6 @@ class ZaronaApp {
 
       desktopInput.addEventListener('input', (e) => {
         const val = e.target.value;
-        if (desktopClear) {
-          desktopClear.style.display = val ? 'flex' : 'none';
-        }
         if (desktopSearchWrap) {
           desktopSearchWrap.classList.add('open');
         }
@@ -407,14 +409,17 @@ class ZaronaApp {
       });
     }
 
-    // Desktop Clear button
+    // Desktop Clear or Close button
     if (desktopClear && desktopInput) {
       desktopClear.addEventListener('click', (e) => {
         e.stopPropagation();
-        desktopInput.value = '';
-        desktopClear.style.display = 'none';
-        renderSearchResults(desktopResults, '');
-        desktopInput.focus();
+        if (desktopInput.value.trim().length > 0) {
+          desktopInput.value = '';
+          renderSearchResults(desktopResults, '');
+          desktopInput.focus();
+        } else {
+          closeDesktopSearch();
+        }
       });
     }
 
