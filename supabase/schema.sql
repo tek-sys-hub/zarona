@@ -194,14 +194,17 @@ CREATE POLICY "Users can manage own cart" ON public.cart_items
   FOR ALL USING (auth.uid() = user_id);
 
 
-
-
 -- =============================================================================
 --  CREATE STORAGE BUCKET
 -- =============================================================================
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('product-images', 'product-images', TRUE)
 ON CONFLICT DO NOTHING;
+
+-- Drop old policies first to avoid conflicts on re-run
+DROP POLICY IF EXISTS "Anyone can view product images" ON storage.objects;
+DROP POLICY IF EXISTS "Admins can upload product images" ON storage.objects;
+DROP POLICY IF EXISTS "Admins can delete product images" ON storage.objects;
 
 CREATE POLICY "Anyone can view product images" ON storage.objects
   FOR SELECT USING (bucket_id = 'product-images');
@@ -220,7 +223,6 @@ CREATE POLICY "Admins can delete product images" ON storage.objects
 
 -- =============================================================================
 --  GRANT ADMIN ROLE TO YOUR ACCOUNT
---  Replace the email below with your admin email
 -- =============================================================================
 UPDATE public.profiles
 SET role = 'admin'
