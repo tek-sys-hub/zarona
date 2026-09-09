@@ -4,7 +4,7 @@
 // =============================================================================
 
 import { supabaseAdmin } from './_supabase.js';
-import { handleCors, verifyAuth, sendError, sendSuccess } from './_middleware.js';
+import { handleCors, verifyAuth, verifyAdmin, sendError, sendSuccess } from './_middleware.js';
 
 export default async function handler(req, res) {
   if (handleCors(req, res)) return;
@@ -141,6 +141,28 @@ export default async function handler(req, res) {
     if (itemsError) return sendError(res, 500, itemsError.message);
 
     return sendSuccess(res, { order: { ...order, items: orderItems } }, 201);
+  }
+
+  // ── DELETE /api/orders?id=... (admin only) ────────────────────────────────
+  if (req.method === 'DELETE') {
+    const { user, error: authError } = await verifyAdmin(req);
+    if (authError) return sendError(res, 401, authError);
+
+    const id = req.query.id || req.body?.id;
+    if (!id) return sendError(res, 400, 'Order ID is required');
+
+    await supabaseAdmin
+      .from('order_items')
+      .delete()
+      .eq('order_id', id);
+
+    const { error } = await supabaseAdmin
+      .from('orders')
+      .delete()
+      .eq('id', id);
+
+    if (error) return sendError(res, 500, error.message);
+    return sendSuccess(res, { message: 'Order removed successfully', id });
   }
 
   return sendError(res, 405, 'Method not allowed');

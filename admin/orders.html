@@ -108,21 +108,25 @@
       </button>
     </div>
     <div class="modal-body" id="order-modal-body"></div>
-    <div class="modal-footer">
-      <select class="form-select" id="order-status-select" style="width:160px;">
-        <option value="pending">Pending</option>
-        <option value="processing">Processing</option>
-        <option value="shipped">Shipped</option>
-        <option value="delivered">Delivered</option>
-        <option value="cancelled">Cancelled</option>
-      </select>
-      <button class="btn btn-primary" id="update-order-status-btn">Update Status</button>
+    <div class="modal-footer" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
+      <button class="btn btn-danger btn-sm" id="modal-delete-order-btn">Remove Order</button>
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+        <button class="btn btn-sm" id="modal-mark-received-btn" style="background:rgba(34,197,94,0.15);color:#4ADE80;border:1px solid rgba(34,197,94,0.35);">Mark Received</button>
+        <select class="form-select" id="order-status-select" style="width:140px;">
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button class="btn btn-primary btn-sm" id="update-order-status-btn">Update Status</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script type="module">
-  import { initSidebar, apiCall, showToast, formatCurrency, formatDateTime, statusBadge } from './js/admin.js';
+  import { initSidebar, apiCall, showToast, formatCurrency, formatDateTime, statusBadge, confirmDialog } from './js/admin.js';
 
   initSidebar('orders');
 
@@ -201,7 +205,13 @@
               <td>${statusBadge(o.status)}</td>
               <td>${formatDateTime(o.created_at)}</td>
               <td>
-                <button class="btn btn-secondary btn-sm" onclick="viewOrder('${o.id}')">View</button>
+                <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+                  <button class="btn btn-secondary btn-sm" onclick="viewOrder('${o.id}')">View</button>
+                  ${o.status !== 'delivered' ? `
+                    <button class="btn btn-sm" style="background:rgba(34,197,94,0.15);color:#4ADE80;border:1px solid rgba(34,197,94,0.35);padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="markReceived('${o.id}')" title="Mark as Received / Delivered">Received</button>
+                  ` : ''}
+                  <button class="btn btn-danger btn-sm" style="padding:0.35rem 0.6rem;font-size:0.75rem;" onclick="deleteOrder('${o.id}')" title="Remove Order">Remove</button>
+                </div>
               </td>
             </tr>
           `).join('')}
@@ -245,6 +255,11 @@
       const o = data.order;
       document.getElementById('order-modal-title').textContent = `Order #${o.id.slice(-6).toUpperCase()}`;
       document.getElementById('order-status-select').value = o.status;
+
+      const markRecBtn = document.getElementById('modal-mark-received-btn');
+      if (markRecBtn) {
+        markRecBtn.style.display = o.status === 'delivered' ? 'none' : 'inline-flex';
+      }
 
       const addr = o.shipping_address || {};
       document.getElementById('order-modal-body').innerHTML = `
@@ -318,12 +333,48 @@
         method: 'PUT',
         body: JSON.stringify({ status }),
       });
-      showToast(`Order marked as ${status}`);
+      showToast(`Order status updated to ${status}`);
       document.getElementById('order-detail-modal').classList.remove('open');
       loadOrders();
     } catch (err) {
       showToast(`Error: ${err.message}`, 'error');
     }
+  });
+
+  // ── Quick Mark Received & Delete Order ─────────────────────────────────────
+  window.markReceived = async (id) => {
+    try {
+      await apiCall(`/api/orders/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: 'delivered' }),
+      });
+      showToast('Order marked as Received / Delivered! Customer status updated.');
+      document.getElementById('order-detail-modal')?.classList.remove('open');
+      loadOrders();
+    } catch (err) {
+      showToast(`Error: ${err.message}`, 'error');
+    }
+  };
+
+  window.deleteOrder = async (id) => {
+    const confirmed = await confirmDialog(`Are you sure you want to remove this order?<br><br><span style="color:#F87171;font-size:0.8rem;">This will permanently delete this order and all associated items.</span>`);
+    if (!confirmed) return;
+    try {
+      await apiCall(`/api/orders/${id}`, { method: 'DELETE' });
+      showToast('Order removed successfully');
+      document.getElementById('order-detail-modal')?.classList.remove('open');
+      loadOrders();
+    } catch (err) {
+      showToast(`Error: ${err.message}`, 'error');
+    }
+  };
+
+  document.getElementById('modal-mark-received-btn')?.addEventListener('click', () => {
+    if (currentOrderId) markReceived(currentOrderId);
+  });
+
+  document.getElementById('modal-delete-order-btn')?.addEventListener('click', () => {
+    if (currentOrderId) deleteOrder(currentOrderId);
   });
 
   loadOrders();
