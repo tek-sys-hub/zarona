@@ -262,6 +262,10 @@
               ${addr.city || ''}, ${addr.state || ''} ${addr.zip || ''}<br>
               ${addr.country || ''}
             </div>
+            ${addr.payment_method ? `
+              <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.6rem;margin-bottom:0.15rem;">PAYMENT METHOD</div>
+              <div style="font-weight:600;color:var(--gold);font-size:0.82rem;">${addr.payment_method}</div>
+            ` : ''}
           </div>
         </div>
 

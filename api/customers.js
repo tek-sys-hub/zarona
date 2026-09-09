@@ -56,5 +56,72 @@ export default async function handler(req, res) {
     });
   }
 
+  // ── DELETE /api/customers?id=... ──────────────────────────────────────────
+  if (req.method === 'DELETE') {
+    const id = req.query.id || req.body?.id;
+    if (!id) {
+      return sendError(res, 400, 'Customer ID is required');
+    }
+
+    // Protect against self-deletion
+    if (id === user.id) {
+      return sendError(res, 400, 'You cannot remove your own administrator account');
+    }
+
+    // Check target profile
+    const { data: targetProfile, error: profileErr } = await supabaseAdmin
+      .from('profiles')
+      .select('id, email, role')
+      .eq('id', id)
+      .single();
+
+    if (profileErr && !targetProfile) {
+      // User might already be deleted or not in profiles, try checking auth
+    }
+
+    if (targetProfile && targetProfile.role === 'admin') {
+      return sendError(res, 400, 'Administrator accounts cannot be removed from the customer management console');
+    }
+
+    // 1. Decouple orders so history is preserved (set user_id = null)
+    try {
+      await supabaseAdmin
+        .from('orders')
+        .update({ user_id: null })
+        .eq('user_id', id);
+    } catch (e) {
+      console.warn('Could not decouple orders for user:', e.message);
+    }
+
+    // 2. Remove persistent cart items
+    try {
+      await supabaseAdmin
+        .from('cart_items')
+        .delete()
+        .eq('user_id', id);
+    } catch (e) {
+      console.warn('Could not remove cart items:', e.message);
+    }
+
+    // 3. Delete from Supabase Auth admin
+    const { error: authDeleteErr } = await supabaseAdmin.auth.admin.deleteUser(id);
+
+    // 4. Delete profile explicitly (in case CASCADE is not configured)
+    await supabaseAdmin
+      .from('profiles')
+      .delete()
+      .eq('id', id);
+
+    if (authDeleteErr && authDeleteErr.status !== 404) {
+      console.error('Auth delete error:', authDeleteErr);
+      return sendError(res, 500, authDeleteErr.message || 'Failed to remove user account from authentication');
+    }
+
+    return sendSuccess(res, {
+      message: 'Customer account removed successfully',
+      id
+    });
+  }
+
   return sendError(res, 405, 'Method not allowed');
 }

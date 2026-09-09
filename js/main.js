@@ -75,6 +75,7 @@ class ZaronaApp {
     this.initHeaderScroll();
     this.initUserMenu();
     this.initCartDrawer();
+    this.initCheckout();
     this.initSearchModal();
     this.initMobileDrawer();
     this.initQuickViewModal();
@@ -409,8 +410,9 @@ class ZaronaApp {
 
     const checkoutBtn = document.getElementById('cart-checkout-btn');
     if (checkoutBtn) {
-      checkoutBtn.addEventListener('click', () => {
-        alert('Thank you for choosing Zarona. Checkout flow simulation.');
+      checkoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openCheckout();
       });
     }
   }
@@ -432,6 +434,397 @@ class ZaronaApp {
       overlay.classList.remove('active');
       drawer.classList.remove('active');
       document.body.style.overflow = '';
+    }
+  }
+
+  // ------------------------------------------------------------------------
+  // CHECKOUT MODAL & PAYMENT OPTIONS (eSewa, Bank, Khalti, COD)
+  // ------------------------------------------------------------------------
+  initCheckout() {
+    const overlay = document.getElementById('checkout-modal-overlay');
+    const closeBtn = document.getElementById('checkout-close-btn');
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.closeCheckout());
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) this.closeCheckout();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay && overlay.classList.contains('active')) {
+        this.closeCheckout();
+      }
+    });
+  }
+
+  openCheckout() {
+    if (!this.cart || this.cart.length === 0) {
+      this.showToast('Your shopping bag is currently empty.');
+      return;
+    }
+
+    this.closeCart();
+
+    const overlay = document.getElementById('checkout-modal-overlay');
+    const content = document.getElementById('checkout-modal-content');
+    if (!overlay || !content) return;
+
+    this.renderCheckoutForm();
+
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeCheckout() {
+    const overlay = document.getElementById('checkout-modal-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  renderCheckoutForm() {
+    const content = document.getElementById('checkout-modal-content');
+    if (!content) return;
+
+    const user = this.loadUserSession();
+    const subtotal = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const shipping = subtotal >= 50 ? 0 : 5.99;
+    const total = subtotal + shipping;
+
+    const paymentMethods = [
+      {
+        id: 'esewa',
+        name: 'eSewa',
+        sub: 'Digital Wallet',
+        badgeClass: 'esewa',
+        iconText: 'eS',
+        info: 'Pay securely via eSewa Digital Wallet. Our verified merchant ID is <strong style="color:#60bb46;">9801234567</strong> (Zarona Unisex). After submitting, please transfer the exact order amount with your Order ID reference.'
+      },
+      {
+        id: 'bank',
+        name: 'Bank Transfer',
+        sub: 'Direct Bank / QR',
+        badgeClass: 'bank',
+        iconText: '🏦',
+        info: 'Direct Transfer to <strong>Nabil Bank</strong>.<br>Account Name: <strong>Zarona Unisex Pvt. Ltd.</strong><br>Account No: <strong>01900175001234</strong> (Durbarmarg Branch). Please use your Order ID as reference.'
+      },
+      {
+        id: 'khalti',
+        name: 'Khalti',
+        sub: 'Digital Wallet',
+        badgeClass: 'khalti',
+        iconText: 'Kh',
+        info: 'Pay instantly with Khalti. Send payment to Khalti ID <strong style="color:#A78BFA;">9801234567</strong> (Zarona Unisex). Quick mobile verification prior to dispatch.'
+      },
+      {
+        id: 'cod',
+        name: 'Cash on Delivery',
+        sub: 'Pay at Doorstep',
+        badgeClass: 'cod',
+        iconText: '💵',
+        info: 'Cash on Delivery (COD): Inspect your luxury parcel upon arrival and pay cash or Fonepay QR directly to the delivery courier.'
+      }
+    ];
+
+    let selectedMethod = 'cod';
+
+    content.innerHTML = `
+      <div class="checkout-header">
+        <div>
+          <h2 class="checkout-header-title">Checkout</h2>
+          <div class="checkout-header-subtitle">Secure acquisition & concierge delivery across Nepal</div>
+        </div>
+      </div>
+
+      <div class="checkout-body">
+        <!-- Main Form -->
+        <div class="checkout-main-form">
+          <form id="checkout-form" novalidate>
+            <div class="checkout-section-heading">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>1. Shipping Information</span>
+            </div>
+
+            <div class="checkout-input-row">
+              <div class="checkout-field">
+                <label class="checkout-label" for="co-name">Full Name *</label>
+                <input type="text" id="co-name" class="checkout-input" placeholder="e.g. Tek Awasthi" value="${user?.full_name || ''}" required>
+              </div>
+              <div class="checkout-field">
+                <label class="checkout-label" for="co-phone">Phone Number *</label>
+                <input type="tel" id="co-phone" class="checkout-input" placeholder="e.g. 98XXXXXXXX" required>
+              </div>
+            </div>
+
+            <div class="checkout-field">
+              <label class="checkout-label" for="co-email">Email Address *</label>
+              <input type="email" id="co-email" class="checkout-input" placeholder="name@example.com" value="${user?.email || ''}" required>
+            </div>
+
+            <div class="checkout-input-row">
+              <div class="checkout-field">
+                <label class="checkout-label" for="co-address">Delivery Address / Street *</label>
+                <input type="text" id="co-address" class="checkout-input" placeholder="House / Street, Landmark" required>
+              </div>
+              <div class="checkout-field">
+                <label class="checkout-label" for="co-city">City / Region *</label>
+                <input type="text" id="co-city" class="checkout-input" placeholder="Kathmandu, Lalitpur, Pokhara..." value="Kathmandu" required>
+              </div>
+            </div>
+
+            <div class="checkout-field">
+              <label class="checkout-label" for="co-notes">Delivery Notes (Optional)</label>
+              <input type="text" id="co-notes" class="checkout-input" placeholder="Special delivery instructions, gate code, etc.">
+            </div>
+
+            <!-- Payment Method Section -->
+            <div class="checkout-section-heading" style="margin-top: 1.5rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+              <span>2. Select Payment Method</span>
+            </div>
+
+            <div class="payment-methods-grid" id="checkout-payment-methods">
+              ${paymentMethods.map(m => `
+                <div class="payment-method-card ${m.id === selectedMethod ? 'active' : ''}" data-method="${m.id}">
+                  <input type="radio" name="payment_method" value="${m.id}" class="payment-method-radio" ${m.id === selectedMethod ? 'checked' : ''}>
+                  <div class="payment-method-icon ${m.badgeClass}">${m.iconText}</div>
+                  <div class="payment-method-label">
+                    <span class="payment-method-name">${m.name}</span>
+                    <span class="payment-method-sub">${m.sub}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="payment-instruction-box" id="payment-instruction-box">
+              ${paymentMethods.find(m => m.id === selectedMethod).info}
+            </div>
+
+            <div id="checkout-error-msg" style="display:none; color:#F87171; font-size:0.8rem; margin-bottom:1rem; padding:0.6rem 0.8rem; background:rgba(239,68,68,0.12); border-radius:6px;"></div>
+
+            <button type="submit" class="checkout-place-order-btn" id="co-submit-btn">
+              <span>Confirm & Place Order</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </form>
+        </div>
+
+        <!-- Sidebar Summary -->
+        <div class="checkout-summary-sidebar">
+          <div class="checkout-section-heading">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            <span>Order Summary (${this.cart.reduce((c, i) => c + i.quantity, 0)})</span>
+          </div>
+
+          <div class="checkout-items-list">
+            ${this.cart.map(item => `
+              <div class="checkout-item-row">
+                <img src="${item.image}" alt="${item.name}" class="checkout-item-img" onerror="this.style.visibility='hidden'">
+                <div class="checkout-item-info">
+                  <div class="checkout-item-title">${item.name}</div>
+                  <div class="checkout-item-meta">Size: ${item.size} ${item.colorName ? '· ' + item.colorName : ''} · Qty: ${item.quantity}</div>
+                </div>
+                <div class="checkout-item-price">$${(item.price * item.quantity).toFixed(2)}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="checkout-calc-row">
+            <span>Subtotal</span>
+            <span>$${subtotal.toFixed(2)}</span>
+          </div>
+          <div class="checkout-calc-row">
+            <span>Estimated Shipping</span>
+            <span>${shipping === 0 ? '<strong style="color:#D4AF37;">Free</strong>' : '$' + shipping.toFixed(2)}</span>
+          </div>
+
+          <div class="checkout-total-row">
+            <span>Total Amount</span>
+            <span class="checkout-total-val">$${total.toFixed(2)}</span>
+          </div>
+
+          <div style="margin-top:auto; padding-top:1.25rem; display:flex; align-items:center; gap:0.5rem; color:rgba(255,255,255,0.4); font-size:0.72rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Encrypted 256-bit luxury checkout security</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Interactive payment method selection
+    const methodCards = content.querySelectorAll('.payment-method-card');
+    const instructionBox = content.querySelector('#payment-instruction-box');
+
+    methodCards.forEach(card => {
+      card.addEventListener('click', () => {
+        methodCards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        const radio = card.querySelector('.payment-method-radio');
+        if (radio) radio.checked = true;
+        selectedMethod = card.getAttribute('data-method');
+
+        const found = paymentMethods.find(m => m.id === selectedMethod);
+        if (found && instructionBox) {
+          instructionBox.innerHTML = found.info;
+        }
+      });
+    });
+
+    // Form submission
+    const form = content.querySelector('#checkout-form');
+    const submitBtn = content.querySelector('#co-submit-btn');
+    const errorMsg = content.querySelector('#checkout-error-msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('co-name').value.trim();
+      const phone = document.getElementById('co-phone').value.trim();
+      const email = document.getElementById('co-email').value.trim();
+      const address = document.getElementById('co-address').value.trim();
+      const city = document.getElementById('co-city').value.trim();
+      const notes = document.getElementById('co-notes').value.trim();
+
+      if (!name || !phone || !email || !address || !city) {
+        if (errorMsg) {
+          errorMsg.textContent = 'Please fill out all required fields marked with (*).';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      await this.handlePlaceOrder({ name, phone, email, address, city, notes }, selectedMethod, submitBtn, errorMsg);
+    });
+  }
+
+  async handlePlaceOrder(formData, paymentMethod, submitBtn, errorEl) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 0.8s linear infinite;">
+        <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+        <path d="M12 2a10 10 0 0 1 10 10" stroke-opacity="1"></path>
+      </svg>
+      <span>Securing Order...</span>
+    `;
+    if (errorEl) errorEl.style.display = 'none';
+
+    const methodNames = {
+      esewa: 'eSewa',
+      bank: 'Bank Transfer',
+      khalti: 'Khalti',
+      cod: 'Cash on Delivery'
+    };
+    const paymentLabel = methodNames[paymentMethod] || 'Cash on Delivery';
+
+    try {
+      const user = this.loadUserSession();
+      const payload = {
+        items: this.cart.map(item => ({
+          product_id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.colorName,
+          image: item.image
+        })),
+        shipping_address: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          line1: formData.address,
+          city: formData.city,
+          country: 'Nepal',
+          payment_method: paymentLabel
+        },
+        guest_name: formData.name,
+        guest_email: formData.email,
+        user_id: user?.id || null,
+        notes: formData.notes || '',
+        payment_method: paymentLabel
+      };
+
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to place order. Please try again.');
+      }
+
+      const order = data.order;
+      // Clear cart
+      this.cart = [];
+      this.saveCart();
+      this.renderCart();
+      this.showToast('Order placed successfully!');
+
+      // Render Order Success Screen in the Modal
+      this.renderCheckoutSuccess(order, paymentMethod);
+
+    } catch (err) {
+      if (errorEl) {
+        errorEl.textContent = err.message || 'An error occurred while placing order.';
+        errorEl.style.display = 'block';
+      }
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<span>Confirm & Place Order</span>`;
+    }
+  }
+
+  renderCheckoutSuccess(order, paymentMethodId) {
+    const content = document.getElementById('checkout-modal-content');
+    if (!content) return;
+
+    const methodNames = {
+      esewa: 'eSewa Digital Wallet',
+      bank: 'Bank Transfer',
+      khalti: 'Khalti Digital Wallet',
+      cod: 'Cash on Delivery (COD)'
+    };
+    const methodName = methodNames[paymentMethodId] || 'Cash on Delivery';
+    const orderRef = (order?.id ? order.id.slice(-6) : Math.random().toString(36).substring(2, 8)).toUpperCase();
+
+    content.innerHTML = `
+      <div class="checkout-success-view">
+        <div class="checkout-success-icon">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <h2 class="checkout-success-title">Order Confirmed</h2>
+        <p class="checkout-success-msg">
+          Thank you for acquiring with Zarona Unisex. Your reference number is <strong style="color:#D4AF37;">#ZR-${orderRef}</strong>. Our concierge team has received your order.
+        </p>
+
+        <div class="checkout-success-box">
+          <div style="font-size:0.7rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.35rem;">Payment Method</div>
+          <div style="font-size:0.92rem; font-weight:700; color:#FFFFFF; margin-bottom:0.5rem;">${methodName}</div>
+          <div style="font-size:0.78rem; color:rgba(255,255,255,0.75); line-height:1.55;">
+            ${paymentMethodId === 'esewa' ? 'Please complete your transfer to verified eSewa ID: <strong style="color:#60bb46;">9801234567</strong> with reference remark <strong>#ZR-' + orderRef + '</strong>.' : ''}
+            ${paymentMethodId === 'bank' ? 'Transfer to <strong>Nabil Bank</strong> (Acc: <strong>01900175001234</strong>, Name: Zarona Unisex) with reference <strong>#ZR-' + orderRef + '</strong>.' : ''}
+            ${paymentMethodId === 'khalti' ? 'Transfer to verified Khalti ID: <strong style="color:#A78BFA;">9801234567</strong> with reference remark <strong>#ZR-' + orderRef + '</strong>.' : ''}
+            ${paymentMethodId === 'cod' ? 'Your parcel will be delivered to your address. Please have the exact payment amount or Fonepay QR ready for the delivery concierge.' : ''}
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="co-finish-btn" style="padding:0.75rem 2rem; border-radius:999px; background:#D4AF37; color:#141414; font-weight:700; border:none; cursor:pointer;">
+          Continue Exploring
+        </button>
+      </div>
+    `;
+
+    const finishBtn = content.querySelector('#co-finish-btn');
+    if (finishBtn) {
+      finishBtn.addEventListener('click', () => {
+        this.closeCheckout();
+      });
     }
   }
 

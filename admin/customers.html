@@ -97,14 +97,15 @@
       </button>
     </div>
     <div class="modal-body" id="customer-modal-body"></div>
-    <div class="modal-footer">
+    <div class="modal-footer" style="display:flex;justify-content:space-between;align-items:center;">
+      <button class="btn btn-danger btn-sm" id="modal-delete-customer-btn">Remove Customer</button>
       <button class="btn btn-secondary" id="close-customer-modal-btn">Close</button>
     </div>
   </div>
 </div>
 
 <script type="module">
-  import { initSidebar, apiCall, showToast, formatCurrency, formatDate, statusBadge } from './js/admin.js';
+  import { initSidebar, apiCall, showToast, formatCurrency, formatDate, statusBadge, confirmDialog } from './js/admin.js';
 
   initSidebar('customers');
 
@@ -171,7 +172,10 @@
               </td>
               <td>${formatDate(c.created_at)}</td>
               <td>
-                <button class="btn btn-secondary btn-sm" onclick='viewCustomer(${JSON.stringify(c)})'>View</button>
+                <div style="display:flex;align-items:center;gap:0.4rem;">
+                  <button class="btn btn-secondary btn-sm" onclick='viewCustomer(${JSON.stringify(c)})'>View</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteCustomer('${c.id}', '${(c.full_name || c.email).replace(/'/g, "\\'")}')">Remove</button>
+                </div>
               </td>
             </tr>
           `).join('')}
@@ -204,7 +208,10 @@
   });
 
   // ── Customer Detail Modal ──────────────────────────────────────────────────
+  let activeCustomer = null;
+
   window.viewCustomer = (c) => {
+    activeCustomer = c;
     document.getElementById('customer-modal-body').innerHTML = `
       <div style="text-align:center;padding:1rem 0 1.5rem;">
         <div style="width:56px;height:56px;border-radius:50%;background:var(--gold-dim);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:700;color:var(--gold);margin:0 auto 0.75rem;">
@@ -235,6 +242,27 @@
     `;
     document.getElementById('customer-modal').classList.add('open');
   };
+
+  // ── Delete Customer ────────────────────────────────────────────────────────
+  window.deleteCustomer = async (id, name) => {
+    const confirmed = await confirmDialog(`Are you sure you want to remove customer "<strong>${name}</strong>"?<br><br><span style="color:#F87171;font-size:0.8rem;">This will permanently delete their account and profile data.</span>`);
+    if (!confirmed) return;
+
+    try {
+      await apiCall(`/api/customers?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      showToast('Customer account removed successfully');
+      document.getElementById('customer-modal')?.classList.remove('open');
+      loadCustomers();
+    } catch (err) {
+      showToast(`Error: ${err.message}`, 'error');
+    }
+  };
+
+  document.getElementById('modal-delete-customer-btn').addEventListener('click', () => {
+    if (activeCustomer) {
+      deleteCustomer(activeCustomer.id, activeCustomer.full_name || activeCustomer.email);
+    }
+  });
 
   document.getElementById('close-customer-modal').addEventListener('click', () =>
     document.getElementById('customer-modal').classList.remove('open')
