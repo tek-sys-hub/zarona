@@ -230,6 +230,7 @@
     let currentEmail = '';
     let currentFullName = '';
     let currentPassword = '';
+    let currentVerificationToken = '';
     let resendInterval = null;
 
     function showError(msg) {
@@ -309,6 +310,10 @@
           const data = await res.json();
           if (!res.ok || !data.success) {
             throw new Error(data.error || 'Failed to send verification code.');
+          }
+
+          if (data.verificationToken) {
+            currentVerificationToken = data.verificationToken;
           }
 
           // Transition to Step 2
@@ -408,7 +413,8 @@
           body: JSON.stringify({
             action: 'verify',
             email: currentEmail,
-            otp
+            otp,
+            verificationToken: currentVerificationToken
           })
         });
 
@@ -478,6 +484,10 @@
           const data = await res.json();
           if (!res.ok || !data.success) {
             throw new Error(data.error || 'Could not resend code.');
+          }
+
+          if (data.verificationToken) {
+            currentVerificationToken = data.verificationToken;
           }
 
           showSuccess('A fresh verification code has been dispatched to your email.');

@@ -6,9 +6,12 @@
 //    - 'resend': Resends fresh OTP code (with cooldown rate limit)
 // =============================================================================
 
+import jwt from 'jsonwebtoken';
 import { supabaseAdmin } from './_supabase.js';
 import { handleCors, sendError, sendSuccess } from './_middleware.js';
 import { sendEmail, buildOtpEmailHtml } from './_mailer.js';
+
+const JWT_SECRET = process.env.ADMIN_SECRET_KEY || 'zarona_secure_otp_secret_key_2025';
 
 // In-memory cache for instant serverless resilience alongside DB
 globalThis._zaronaOtpStore = globalThis._zaronaOtpStore || new Map();
@@ -22,7 +25,7 @@ export default async function handler(req, res) {
   }
 
   const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-  const { action = 'send', email, full_name, password, otp } = body;
+  const { action = 'send', email, full_name, password, otp, verificationToken } = body;
 
   if (!email) {
     return sendError(res, 400, 'Email address is required');
@@ -68,6 +71,18 @@ export default async function handler(req, res) {
       return sendError(res, 400, 'Password is required to initiate registration');
     }
 
+    // Generate cryptographic signed verification token for stateless serverless resilience
+    const token = jwt.sign(
+      {
+        email: cleanEmail,
+        otp: generatedOtp,
+        full_name: metaFullName,
+        password: metaPassword,
+      },
+      JWT_SECRET,
+      { expiresIn: '10m' }
+    );
+
     // Store in memory
     globalThis._zaronaOtpStore.set(cleanEmail, {
       otp: generatedOtp,
@@ -86,7 +101,7 @@ export default async function handler(req, res) {
         expires_at: expiresAt.toISOString(),
       }]);
     } catch (dbErr) {
-      console.warn('DB OTP insert skipped (memory active):', dbErr.message);
+      console.warn('DB OTP insert skipped (memory/token active):', dbErr.message);
     }
 
     // 4. Send email
@@ -104,6 +119,7 @@ export default async function handler(req, res) {
     return sendSuccess(res, {
       message: 'Verification code sent to your email.',
       email: cleanEmail,
+      verificationToken: token,
       provider: emailResult.provider,
     });
   }
@@ -118,14 +134,29 @@ export default async function handler(req, res) {
     let matched = false;
     let metadata = {};
 
-    // 1. Check memory store
-    const memRecord = globalThis._zaronaOtpStore.get(cleanEmail);
-    if (memRecord && memRecord.otp === cleanOtp && new Date() < memRecord.expiresAt) {
-      matched = true;
-      metadata = { full_name: memRecord.full_name, password: memRecord.password };
+    // 1. Verify cryptographic stateless token (Serverless lambda-proof!)
+    if (verificationToken) {
+      try {
+        const decoded = jwt.verify(verificationToken, JWT_SECRET);
+        if (decoded.email === cleanEmail && String(decoded.otp) === cleanOtp) {
+          matched = true;
+          metadata = { full_name: decoded.full_name, password: decoded.password };
+        }
+      } catch (jwtErr) {
+        console.warn('JWT verification warning:', jwtErr.message);
+      }
     }
 
-    // 2. Check DB if not matched in memory
+    // 2. Fallback to memory store if token wasn't provided
+    if (!matched) {
+      const memRecord = globalThis._zaronaOtpStore.get(cleanEmail);
+      if (memRecord && memRecord.otp === cleanOtp && new Date() < memRecord.expiresAt) {
+        matched = true;
+        metadata = { full_name: memRecord.full_name, password: memRecord.password };
+      }
+    }
+
+    // 3. Fallback to DB if not matched yet
     if (!matched) {
       try {
         const { data: dbRecords } = await supabaseAdmin
