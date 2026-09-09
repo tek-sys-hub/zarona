@@ -193,6 +193,27 @@ ALTER TABLE public.cart_items ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can manage own cart" ON public.cart_items
   FOR ALL USING (auth.uid() = user_id);
 
+-- =============================================================================
+--  EMAIL OTPS TABLE (Email Verification System)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS public.email_otps (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email       TEXT NOT NULL,
+  otp_code    TEXT NOT NULL,
+  metadata    JSONB DEFAULT '{}',
+  expires_at  TIMESTAMPTZ NOT NULL,
+  verified    BOOLEAN DEFAULT FALSE,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_otps_lookup ON public.email_otps (email, otp_code);
+CREATE INDEX IF NOT EXISTS idx_email_otps_expiry ON public.email_otps (expires_at);
+
+ALTER TABLE public.email_otps ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Service role full access on email_otps" ON public.email_otps;
+CREATE POLICY "Service role full access on email_otps" ON public.email_otps
+  FOR ALL TO service_role USING (TRUE) WITH CHECK (TRUE);
+
 
 -- =============================================================================
 --  CREATE STORAGE BUCKET

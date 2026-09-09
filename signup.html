@@ -34,109 +34,149 @@
   <!-- Center Card -->
   <main class="auth-center-wrap">
     <div class="auth-glass-card">
-      <span class="auth-card-eyebrow">GET STARTED</span>
-      <h1 class="auth-card-title">Create Your Account</h1>
-      <p class="auth-card-subtitle">Join Zarona and be part of our community.</p>
+      <span class="auth-card-eyebrow" id="auth-step-eyebrow">STEP 1 OF 2 &bull; GET STARTED</span>
+      <h1 class="auth-card-title" id="auth-step-title">Create Your Account</h1>
+      <p class="auth-card-subtitle" id="auth-step-subtitle">Join Zarona and be part of our community.</p>
 
       <div id="signup-error-msg" style="display: none; background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.4); color: #fca5a5; font-size: 0.85rem; padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; text-align: center; line-height: 1.4;"></div>
+      <div id="signup-success-msg" style="display: none; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); color: #86efac; font-size: 0.85rem; padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; text-align: center; line-height: 1.4;"></div>
 
-      <form class="auth-glass-form" id="signup-form">
-        <!-- Full Name -->
-        <div class="auth-glass-input-group">
-          <svg class="auth-glass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-          <input type="text" id="signup-name" class="auth-glass-input" placeholder="Full Name" required autocomplete="name">
-        </div>
+      <!-- STEP 1: Registration Details -->
+      <div id="signup-step-1">
+        <form class="auth-glass-form" id="signup-form">
+          <!-- Full Name -->
+          <div class="auth-glass-input-group">
+            <svg class="auth-glass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <input type="text" id="signup-name" class="auth-glass-input" placeholder="Full Name" required autocomplete="name">
+          </div>
 
-        <!-- Email Address -->
-        <div class="auth-glass-input-group">
-          <svg class="auth-glass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-            <path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-          </svg>
-          <input type="email" id="signup-email" class="auth-glass-input" placeholder="Email Address" required autocomplete="email">
-        </div>
+          <!-- Email Address -->
+          <div class="auth-glass-input-group">
+            <svg class="auth-glass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+            </svg>
+            <input type="email" id="signup-email" class="auth-glass-input" placeholder="Email Address" required autocomplete="email">
+          </div>
 
-        <!-- Password -->
-        <div class="auth-glass-input-group">
-          <svg class="auth-glass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-          <input type="password" id="signup-password" class="auth-glass-input" placeholder="Password" required autocomplete="new-password">
-          <button type="button" class="auth-glass-toggle" id="toggle-signup-password" aria-label="Toggle password visibility">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
+          <!-- Password -->
+          <div class="auth-glass-input-group">
+            <svg class="auth-glass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <input type="password" id="signup-password" class="auth-glass-input" placeholder="Password (min 6 characters)" required autocomplete="new-password">
+            <button type="button" class="auth-glass-toggle" id="toggle-signup-password" aria-label="Toggle password visibility">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="auth-glass-input-group">
+            <svg class="auth-glass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <input type="password" id="signup-confirm-password" class="auth-glass-input" placeholder="Confirm Password" required autocomplete="new-password">
+            <button type="button" class="auth-glass-toggle" id="toggle-confirm-password" aria-label="Toggle password visibility">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Terms Checkbox -->
+          <div class="auth-glass-helper-row" style="margin-top: 0.1rem; margin-bottom: 0.6rem;">
+            <label class="auth-glass-checkbox">
+              <input type="checkbox" required style="accent-color: #EDE8DE;">
+              <span style="font-size: 0.78rem; line-height: 1.35; color: rgba(255, 255, 255, 0.75);">
+                I agree to the <strong style="color: #FFFFFF;">Terms & Conditions</strong> and <strong style="color: #FFFFFF;">Privacy Policy</strong>
+              </span>
+            </label>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="auth-glass-cta-btn" id="signup-submit-btn">
+            <span>Send Verification Code</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
           </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="auth-glass-divider">
+          <span>or</span>
         </div>
 
-        <!-- Confirm Password -->
-        <div class="auth-glass-input-group">
-          <svg class="auth-glass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        <!-- Social Buttons -->
+        <button type="button" class="auth-glass-social-btn" onclick="console.log('Google signup');">
+          <svg viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.36 7.33 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.17 0 9.97 0 12s.46 3.83 1.26 5.42l4.02-3.15z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.25 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
           </svg>
-          <input type="password" id="signup-confirm-password" class="auth-glass-input" placeholder="Confirm Password" required autocomplete="new-password">
-          <button type="button" class="auth-glass-toggle" id="toggle-confirm-password" aria-label="Toggle password visibility">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Terms Checkbox -->
-        <div class="auth-glass-helper-row" style="margin-top: 0.1rem; margin-bottom: 0.6rem;">
-          <label class="auth-glass-checkbox">
-            <input type="checkbox" required style="accent-color: #EDE8DE;">
-            <span style="font-size: 0.78rem; line-height: 1.35; color: rgba(255, 255, 255, 0.75);">
-              I agree to the <strong style="color: #FFFFFF;">Terms & Conditions</strong> and <strong style="color: #FFFFFF;">Privacy Policy</strong>
-            </span>
-          </label>
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit" class="auth-glass-cta-btn" id="signup-submit-btn">
-          <span>Sign Up</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
+          <span>Continue with Google</span>
         </button>
-      </form>
 
-      <!-- Divider -->
-      <div class="auth-glass-divider">
-        <span>or</span>
+        <button type="button" class="auth-glass-social-btn" onclick="console.log('Apple signup');">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06 2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.67-.82 1.12-1.95.99-3.09-1 .04-2.15.65-2.82 1.45-.59.69-1.11 1.82-.97 2.93 1.11.08 2.19-.57 2.8-1.29z"/>
+          </svg>
+          <span>Continue with Apple</span>
+        </button>
+
+        <!-- Switch Link -->
+        <p class="auth-glass-switch">
+          Already have an account?
+          <a href="/login.html">Login</a>
+        </p>
       </div>
 
-      <!-- Social Buttons -->
-      <button type="button" class="auth-glass-social-btn" onclick="console.log('Google signup');">
-        <svg viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
-          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.36 7.33 24 12 24z"/>
-          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.17 0 9.97 0 12s.46 3.83 1.26 5.42l4.02-3.15z"/>
-          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.25 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-        </svg>
-        <span>Continue with Google</span>
-      </button>
+      <!-- STEP 2: OTP Verification Form -->
+      <div id="signup-step-2" style="display: none;">
+        <p style="font-size: 0.88rem; line-height: 1.5; color: rgba(255, 255, 255, 0.78); text-align: center; margin-bottom: 0.5rem;">
+          We have dispatched a 6-digit code to:<br>
+          <strong id="otp-target-email" style="color: #EDE8DE; font-size: 0.95rem;"></strong>
+        </p>
 
-      <button type="button" class="auth-glass-social-btn" onclick="console.log('Apple signup');">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.67-.82 1.12-1.95.99-3.09-1 .04-2.15.65-2.82 1.45-.59.69-1.11 1.82-.97 2.93 1.11.08 2.19-.57 2.8-1.29z"/>
-        </svg>
-        <span>Continue with Apple</span>
-      </button>
+        <!-- 6 Digit Inputs -->
+        <div class="otp-inputs-grid" id="otp-inputs-wrap">
+          <input type="text" class="otp-digit-box" maxlength="1" pattern="[0-9]" inputmode="numeric" autocomplete="one-time-code" data-index="0" required>
+          <input type="text" class="otp-digit-box" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="1" required>
+          <input type="text" class="otp-digit-box" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="2" required>
+          <input type="text" class="otp-digit-box" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="3" required>
+          <input type="text" class="otp-digit-box" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="4" required>
+          <input type="text" class="otp-digit-box" maxlength="1" pattern="[0-9]" inputmode="numeric" data-index="5" required>
+        </div>
 
-      <!-- Switch Link -->
-      <p class="auth-glass-switch">
-        Already have an account?
-        <a href="/login.html">Login</a>
-      </p>
+        <div class="otp-meta-info">
+          <button type="button" class="otp-edit-email-btn" id="otp-edit-email-btn">
+            &larr; Edit Details
+          </button>
+          <button type="button" class="otp-resend-btn" id="otp-resend-btn" disabled>
+            Resend in <span id="resend-countdown">60</span>s
+          </button>
+        </div>
+
+        <!-- Verify CTA -->
+        <button type="button" class="auth-glass-cta-btn" id="otp-verify-btn">
+          <span>Verify & Activate Account</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+      </div>
+
     </div>
   </main>
 
@@ -170,83 +210,306 @@
     setupToggle('toggle-signup-password', 'signup-password');
     setupToggle('toggle-confirm-password', 'signup-confirm-password');
 
-    // Direct Signup Handling without Alerts
-    const signupForm = document.getElementById('signup-form');
-    const errorMsg = document.getElementById('signup-error-msg');
-    const submitBtn = document.getElementById('signup-submit-btn');
+    // UI Elements
+    const stepEyebrow   = document.getElementById('auth-step-eyebrow');
+    const stepTitle     = document.getElementById('auth-step-title');
+    const stepSubtitle  = document.getElementById('auth-step-subtitle');
+    const step1Wrap     = document.getElementById('signup-step-1');
+    const step2Wrap     = document.getElementById('signup-step-2');
+    const signupForm    = document.getElementById('signup-form');
+    const submitBtn     = document.getElementById('signup-submit-btn');
+    const errorMsg      = document.getElementById('signup-error-msg');
+    const successMsg    = document.getElementById('signup-success-msg');
+    const targetEmailEl = document.getElementById('otp-target-email');
+    const otpBoxes      = Array.from(document.querySelectorAll('.otp-digit-box'));
+    const verifyBtn     = document.getElementById('otp-verify-btn');
+    const resendBtn     = document.getElementById('otp-resend-btn');
+    const countdownEl   = document.getElementById('resend-countdown');
+    const editEmailBtn  = document.getElementById('otp-edit-email-btn');
 
+    let currentEmail = '';
+    let currentFullName = '';
+    let currentPassword = '';
+    let resendInterval = null;
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.style.display = 'block';
+      successMsg.style.display = 'none';
+    }
+
+    function showSuccess(msg) {
+      successMsg.textContent = msg;
+      successMsg.style.display = 'block';
+      errorMsg.style.display = 'none';
+    }
+
+    function clearMessages() {
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+    }
+
+    // Start 60-second countdown for resending OTP
+    function startResendCountdown() {
+      if (resendInterval) clearInterval(resendInterval);
+      let remaining = 60;
+      resendBtn.disabled = true;
+      countdownEl.textContent = remaining;
+      resendBtn.innerHTML = `Resend in <span id="resend-countdown">${remaining}</span>s`;
+
+      resendInterval = setInterval(() => {
+        remaining--;
+        const cEl = document.getElementById('resend-countdown');
+        if (cEl) cEl.textContent = remaining;
+
+        if (remaining <= 0) {
+          clearInterval(resendInterval);
+          resendBtn.disabled = false;
+          resendBtn.innerHTML = `Resend Code`;
+        }
+      }, 1000);
+    }
+
+    // ── STEP 1: SUBMIT FORM & SEND OTP ──────────────────────────────────────
     if (signupForm) {
       signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        errorMsg.style.display = 'none';
-        errorMsg.textContent = '';
+        clearMessages();
 
-        const full_name = document.getElementById('signup-name').value.trim();
-        const email = document.getElementById('signup-email').value.trim();
-        const password = document.getElementById('signup-password').value;
+        currentFullName = document.getElementById('signup-name').value.trim();
+        currentEmail    = document.getElementById('signup-email').value.trim();
+        currentPassword = document.getElementById('signup-password').value;
         const confirmPassword = document.getElementById('signup-confirm-password').value;
 
-        if (password !== confirmPassword) {
-          errorMsg.textContent = 'Passwords do not match.';
-          errorMsg.style.display = 'block';
+        if (currentPassword !== confirmPassword) {
+          showError('Passwords do not match.');
+          return;
+        }
+
+        if (currentPassword.length < 6) {
+          showError('Password must be at least 6 characters long.');
           return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>Creating Account...</span>';
+        submitBtn.innerHTML = '<span>Sending Code...</span>';
 
         try {
-          const res = await fetch('/api/auth', {
+          const res = await fetch('/api/otp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              action: 'signup',
-              full_name,
-              email,
-              password
+              action: 'send',
+              full_name: currentFullName,
+              email: currentEmail,
+              password: currentPassword
             })
           });
 
           const data = await res.json();
-
           if (!res.ok || !data.success) {
-            throw new Error(data.error || 'Failed to create account.');
+            throw new Error(data.error || 'Failed to send verification code.');
           }
 
-          if (data.token) {
-            localStorage.setItem('zarona_session', JSON.stringify({
-              token: data.token,
-              refresh_token: data.refresh_token,
-              user: data.user
-            }));
+          // Transition to Step 2
+          stepEyebrow.textContent  = 'STEP 2 OF 2 • EMAIL VERIFICATION';
+          stepTitle.textContent    = 'Enter Verification Code';
+          stepSubtitle.textContent = 'A single-use 6-digit code has been delivered.';
+          targetEmailEl.textContent = currentEmail;
 
-            if (data.user && data.user.role === 'admin') {
-              localStorage.setItem('zarona_admin_session', JSON.stringify({
-                token: data.token,
-                refresh_token: data.refresh_token,
-                user: data.user
-              }));
-              window.location.href = '/admin/index.html';
-            } else {
-              window.location.href = '/index.html';
-            }
-          } else {
-            // Direct to login
-            window.location.href = '/login.html';
-          }
+          step1Wrap.style.display = 'none';
+          step2Wrap.style.display = 'block';
+
+          // Reset OTP boxes
+          otpBoxes.forEach(b => { b.value = ''; b.classList.remove('filled'); });
+          otpBoxes[0].focus();
+
+          startResendCountdown();
 
         } catch (err) {
-          errorMsg.textContent = err.message || 'Unable to register. Please try again.';
-          errorMsg.style.display = 'block';
+          showError(err.message || 'Unable to proceed. Please try again.');
           submitBtn.disabled = false;
           submitBtn.innerHTML = `
-            <span>Sign Up</span>
+            <span>Send Verification Code</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
           `;
         }
+      });
+    }
+
+    // ── STEP 2: DIGIT INPUT HANDLING & AUTO ADVANCE ────────────────────────
+    otpBoxes.forEach((box, idx) => {
+      box.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/[^0-9]/g, '');
+        e.target.value = val ? val.slice(-1) : '';
+
+        if (e.target.value) {
+          box.classList.add('filled');
+          if (idx < otpBoxes.length - 1) {
+            otpBoxes[idx + 1].focus();
+          }
+        } else {
+          box.classList.remove('filled');
+        }
+
+        // If all 6 digits entered, auto-verify!
+        const fullCode = otpBoxes.map(b => b.value).join('');
+        if (fullCode.length === 6) {
+          triggerVerification();
+        }
+      });
+
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !box.value && idx > 0) {
+          otpBoxes[idx - 1].focus();
+        }
+      });
+
+      box.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasted = (e.clipboardData || window.clipboardData).getData('text').trim().replace(/[^0-9]/g, '');
+        if (pasted) {
+          const digits = pasted.slice(0, 6).split('');
+          digits.forEach((digit, i) => {
+            if (otpBoxes[i]) {
+              otpBoxes[i].value = digit;
+              otpBoxes[i].classList.add('filled');
+            }
+          });
+          const nextIndex = Math.min(digits.length, 5);
+          otpBoxes[nextIndex].focus();
+
+          if (digits.length === 6) {
+            triggerVerification();
+          }
+        }
+      });
+    });
+
+    // ── STEP 2: VERIFICATION TRIGGER ────────────────────────────────────────
+    async function triggerVerification() {
+      const otp = otpBoxes.map(b => b.value).join('').trim();
+      if (otp.length < 6) {
+        showError('Please enter all 6 digits of your verification code.');
+        return;
+      }
+
+      clearMessages();
+      verifyBtn.disabled = true;
+      verifyBtn.innerHTML = '<span>Verifying...</span>';
+
+      try {
+        const res = await fetch('/api/otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'verify',
+            email: currentEmail,
+            otp
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Verification failed. Please check the code.');
+        }
+
+        showSuccess('Verification successful! Entering your account...');
+
+        // Save session
+        if (data.token) {
+          localStorage.setItem('zarona_session', JSON.stringify({
+            token: data.token,
+            refresh_token: data.refresh_token,
+            user: data.user
+          }));
+
+          // Route to destination
+          if (data.user && data.user.role === 'admin') {
+            localStorage.setItem('zarona_admin_session', JSON.stringify({
+              token: data.token,
+              refresh_token: data.refresh_token,
+              user: data.user
+            }));
+            window.location.href = '/admin/index.html';
+          } else {
+            window.location.href = '/index.html';
+          }
+        } else {
+          window.location.href = '/login.html';
+        }
+
+      } catch (err) {
+        showError(err.message || 'Invalid or expired code.');
+        verifyBtn.disabled = false;
+        verifyBtn.innerHTML = `
+          <span>Verify & Activate Account</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        `;
+      }
+    }
+
+    if (verifyBtn) {
+      verifyBtn.addEventListener('click', triggerVerification);
+    }
+
+    // ── RESEND OTP ──────────────────────────────────────────────────────────
+    if (resendBtn) {
+      resendBtn.addEventListener('click', async () => {
+        clearMessages();
+        resendBtn.disabled = true;
+        resendBtn.textContent = 'Dispatching...';
+
+        try {
+          const res = await fetch('/api/otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'resend',
+              email: currentEmail
+            })
+          });
+
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            throw new Error(data.error || 'Could not resend code.');
+          }
+
+          showSuccess('A fresh verification code has been dispatched to your email.');
+          startResendCountdown();
+
+        } catch (err) {
+          showError(err.message || 'Could not resend code. Please wait.');
+          resendBtn.disabled = false;
+          resendBtn.textContent = 'Resend Code';
+        }
+      });
+    }
+
+    // ── BACK TO STEP 1 (EDIT DETAILS) ───────────────────────────────────────
+    if (editEmailBtn) {
+      editEmailBtn.addEventListener('click', () => {
+        clearMessages();
+        stepEyebrow.textContent  = 'STEP 1 OF 2 • GET STARTED';
+        stepTitle.textContent    = 'Create Your Account';
+        stepSubtitle.textContent = 'Join Zarona and be part of our community.';
+
+        step2Wrap.style.display = 'none';
+        step1Wrap.style.display = 'block';
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `
+          <span>Send Verification Code</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        `;
       });
     }
   </script>

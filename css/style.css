@@ -2459,10 +2459,96 @@ input, select {
 }
 
 .auth-glass-switch a {
-  color: #FFFFFF;
+  color: #EDE8DE;
   font-weight: 600;
+  margin-left: 0.25rem;
   text-decoration: underline;
-  margin-left: 4px;
+}
+
+/* ==========================================================================
+   OTP VERIFICATION CARD STYLES
+   ========================================================================== */
+.otp-inputs-grid {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 1.75rem 0 1.5rem;
+}
+
+.otp-digit-box {
+  width: 48px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.otp-digit-box:focus {
+  border-color: #D4AF37;
+  background: rgba(212, 175, 55, 0.08);
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.35);
+  transform: translateY(-2px);
+}
+
+.otp-digit-box.filled {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.otp-meta-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1rem 0 1.5rem;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.otp-resend-btn {
+  background: none;
+  border: none;
+  color: #EDE8DE;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.otp-resend-btn:disabled {
+  color: rgba(255, 255, 255, 0.35);
+  cursor: not-allowed;
+}
+
+.otp-edit-email-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+.otp-edit-email-btn:hover {
+  color: #FFFFFF;
+}
+
+@media (max-width: 480px) {
+  .otp-inputs-grid {
+    gap: 6px;
+  }
+  .otp-digit-box {
+    width: 40px;
+    height: 52px;
+    font-size: 1.4rem;
+  }
 }
 
 /* Bottom Bar */
