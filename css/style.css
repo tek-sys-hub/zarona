@@ -698,6 +698,63 @@ input, select {
 }
 
 /* ==========================================================================
+   SKELETON LOADER
+   ========================================================================== */
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  pointer-events: none;
+}
+
+.skeleton-media {
+  width: 100%;
+  padding-top: 125%; /* 4:5 luxury ratio */
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(200, 195, 185, 0.12) 25%, rgba(200, 195, 185, 0.28) 37%, rgba(200, 195, 185, 0.12) 63%);
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.5s ease infinite;
+  margin-bottom: 1rem;
+}
+
+.skeleton-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.skeleton-line {
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(200, 195, 185, 0.12) 25%, rgba(200, 195, 185, 0.28) 37%, rgba(200, 195, 185, 0.12) 63%);
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.5s ease infinite;
+}
+
+.skeleton-line.category {
+  width: 30%;
+  height: 11px;
+}
+
+.skeleton-line.title {
+  width: 85%;
+  height: 16px;
+}
+
+.skeleton-line.price {
+  width: 40%;
+  height: 14px;
+}
+
+/* ==========================================================================
    CATEGORY SPOTLIGHT (HOME)
    ========================================================================== */
 .categories-section {

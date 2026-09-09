@@ -7,7 +7,7 @@ import { products } from './products.js';
 
 class ZaronaApp {
   constructor() {
-    this.products = products;
+    this.products = [];
     this.cart = this.loadCart();
     this.activeFilters = {
       category: 'All',
@@ -20,6 +20,57 @@ class ZaronaApp {
     this.init();
   }
 
+  renderSkeletonCards(count = 6) {
+    return Array(count).fill(0).map(() => `
+      <div class="skeleton-card">
+        <div class="skeleton-media"></div>
+        <div class="skeleton-info">
+          <div class="skeleton-line category"></div>
+          <div class="skeleton-line title"></div>
+          <div class="skeleton-line price"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  normalizeProduct(p) {
+    return {
+      ...p,
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      price: Number(p.price) || 0,
+      originalPrice: p.original_price != null ? Number(p.original_price) : (p.originalPrice ? Number(p.originalPrice) : null),
+      badge: p.badge || null,
+      rating: Number(p.rating) || 5.0,
+      reviewsCount: p.reviews_count != null ? p.reviews_count : (p.reviewsCount || 0),
+      sizes: Array.isArray(p.sizes) ? p.sizes : (typeof p.sizes === 'string' ? JSON.parse(p.sizes) : ['S', 'M', 'L', 'XL']),
+      colors: Array.isArray(p.colors) && p.colors.length > 0 ? p.colors : [{ name: 'Standard', hex: '#111111', image: p.primary_image || p.primaryImage }],
+      primaryImage: p.primary_image || p.primaryImage || '/assets/images/placeholder.jpg',
+      secondaryImage: p.secondary_image || p.secondaryImage || p.primary_image || p.primaryImage || '/assets/images/placeholder.jpg',
+      description: p.description || '',
+      details: Array.isArray(p.details) ? p.details : [],
+      isFeatured: Boolean(p.is_featured != null ? p.is_featured : p.isFeatured),
+      isNew: Boolean(p.is_new != null ? p.is_new : p.isNew)
+    };
+  }
+
+  async fetchProducts() {
+    try {
+      const res = await fetch('/api/products');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.products)) {
+          this.products = data.products.map(p => this.normalizeProduct(p));
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Could not fetch products from backend:', err);
+    }
+    this.products = [];
+  }
+
   init() {
     this.initHeaderScroll();
     this.initCartDrawer();
@@ -28,12 +79,24 @@ class ZaronaApp {
     this.initQuickViewModal();
     this.updateCartUI();
 
-    // Check which page we are on
-    if (document.getElementById('shop-products-grid')) {
-      this.initShopPage();
-    } else if (document.getElementById('featured-products-grid')) {
-      this.initHomePage();
+    const shopGrid = document.getElementById('shop-products-grid');
+    const featuredGrid = document.getElementById('featured-products-grid');
+
+    // Show luxury skeleton cards immediately while data is loading
+    if (shopGrid) {
+      shopGrid.innerHTML = this.renderSkeletonCards(6);
     }
+    if (featuredGrid) {
+      featuredGrid.innerHTML = this.renderSkeletonCards(3);
+    }
+
+    this.fetchProducts().then(() => {
+      if (shopGrid) {
+        this.initShopPage();
+      } else if (featuredGrid) {
+        this.initHomePage();
+      }
+    });
   }
 
   // ------------------------------------------------------------------------
@@ -615,9 +678,24 @@ class ZaronaApp {
     const grid = document.getElementById('featured-products-grid');
     if (!grid) return;
 
+    if (this.products.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 4.5rem 1.5rem;">
+          <div style="font-family: var(--font-serif); font-size: 2rem; color: var(--text-primary); margin-bottom: 0.75rem;">
+            New Bespoke Drops Arriving
+          </div>
+          <p style="color: var(--text-secondary); max-width: 480px; margin: 0 auto; line-height: 1.6; font-size: 0.95rem;">
+            The upcoming unisex collection is currently in curation. Products will be unveiled here as new releases go live.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
     // Render featured products
     const featured = this.products.filter(p => p.isFeatured).slice(0, 6);
-    grid.innerHTML = featured.map(p => this.renderProductCardHTML(p)).join('');
+    const displayList = featured.length > 0 ? featured : this.products.slice(0, 6);
+    grid.innerHTML = displayList.map(p => this.renderProductCardHTML(p)).join('');
     this.attachCardEventListeners(grid);
   }
 
@@ -633,6 +711,25 @@ class ZaronaApp {
     const grid = document.getElementById('shop-products-grid');
     const countEl = document.getElementById('product-count-num');
     if (!grid) return;
+
+    if (this.products.length === 0) {
+      if (countEl) countEl.textContent = '0';
+      grid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 5rem 1.5rem;">
+          <div style="font-family: var(--font-serif); font-size: 2.2rem; color: var(--text-primary); margin-bottom: 0.75rem;">
+            Curating The Collection
+          </div>
+          <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 2rem; line-height: 1.6; font-size: 0.95rem;">
+            Our catalog is currently being updated with new releases. Check back shortly or visit again once products are added.
+          </p>
+          <a href="/index.html" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; padding: 0.75rem 1.5rem; border: 1px solid var(--border-color); border-radius: 999px;">
+            <span>Back to Home</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        </div>
+      `;
+      return;
+    }
 
     let list = [...this.products];
 
