@@ -292,6 +292,10 @@ class ZaronaApp {
     this.saveCart();
   }
 
+  renderCart() {
+    this.updateCartUI();
+  }
+
   updateCartUI() {
     // Badges in header
     const badges = document.querySelectorAll('.cart-count-badge');
@@ -764,7 +768,7 @@ class ZaronaApp {
       // Clear cart
       this.cart = [];
       this.saveCart();
-      this.renderCart();
+      this.updateCartUI();
       this.showToast('Order placed successfully!');
 
       // Render Order Success Screen in the Modal
