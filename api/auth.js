@@ -25,19 +25,22 @@ export default async function handler(req, res) {
 
     // 1. Sign Up Flow
     if (action === 'signup') {
-      const { data: signUpData, error: signUpError } = await supabaseAdmin.auth.signUp({
+      let user = null;
+      
+      // Create user directly with email pre-confirmed
+      const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
-        options: {
-          data: { full_name: full_name || '' }
-        }
+        email_confirm: true,
+        user_metadata: { full_name: full_name || '' }
       });
 
-      if (signUpError) {
-        return sendError(res, 400, signUpError.message);
+      if (createError) {
+        // If already registered or other error, return message
+        return sendError(res, 400, createError.message);
       }
 
-      const user = signUpData.user;
+      user = createData.user;
       if (!user) {
         return sendError(res, 400, 'Unable to create user account');
       }
@@ -49,38 +52,28 @@ export default async function handler(req, res) {
         role = 'admin';
       }
 
-      // If session was immediately established
-      if (signUpData.session) {
-        return sendSuccess(res, {
-          token: signUpData.session.access_token,
-          refresh_token: signUpData.session.refresh_token,
-          user: {
-            id: user.id,
-            email: user.email,
-            full_name: full_name || '',
-            role,
-          },
-        }, 201);
-      }
+      // Immediately sign in the newly created, pre-confirmed user
+      const { data: signInData, error: signInErr } = await supabaseAdmin.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      // If email confirmation is required or session not returned, attempt sign-in
-      const { data: signInData } = await supabaseAdmin.auth.signInWithPassword({ email, password });
-      if (signInData?.session) {
+      if (signInErr || !signInData?.session) {
         return sendSuccess(res, {
-          token: signInData.session.access_token,
-          refresh_token: signInData.session.refresh_token,
-          user: {
-            id: user.id,
-            email: user.email,
-            full_name: full_name || '',
-            role,
-          },
+          message: 'Account created successfully. You can now log in.',
+          user: { id: user.id, email: user.email, role }
         }, 201);
       }
 
       return sendSuccess(res, {
-        message: 'Account created. Please check your email to verify or sign in.',
-        user: { id: user.id, email: user.email, role }
+        token: signInData.session.access_token,
+        refresh_token: signInData.session.refresh_token,
+        user: {
+          id: user.id,
+          email: user.email,
+          full_name: full_name || '',
+          role,
+        },
       }, 201);
     }
 
