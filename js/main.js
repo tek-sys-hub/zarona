@@ -76,6 +76,7 @@ class ZaronaApp {
     this.initUserMenu();
     this.initCartDrawer();
     this.initCheckout();
+    this.initOrdersModal();
     this.initSearchModal();
     this.initMobileDrawer();
     this.initQuickViewModal();
@@ -160,6 +161,10 @@ class ZaronaApp {
               <span>Admin Dashboard</span>
             </a>
           ` : ''}
+          <button type="button" class="user-popover-item" id="user-my-orders-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 12h6"></path><path d="M9 16h6"></path></svg>
+            <span>My Orders</span>
+          </button>
           <a href="/shop.html" class="user-popover-item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line></svg>
             <span>Explore Catalog</span>
@@ -192,6 +197,16 @@ class ZaronaApp {
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') popover.classList.remove('active');
       });
+
+      // My Orders button click
+      const myOrdersBtn = document.getElementById('user-my-orders-btn');
+      if (myOrdersBtn) {
+        myOrdersBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          popover.classList.remove('active');
+          this.openOrdersModal();
+        });
+      }
 
       // Logout button click
       const logoutBtn = document.getElementById('user-popover-logout-btn');
@@ -829,6 +844,156 @@ class ZaronaApp {
       finishBtn.addEventListener('click', () => {
         this.closeCheckout();
       });
+    }
+  }
+
+  // ------------------------------------------------------------------------
+  // CUSTOMER ORDER HISTORY MODAL
+  // ------------------------------------------------------------------------
+  initOrdersModal() {
+    const overlay = document.getElementById('orders-modal-overlay');
+    const closeBtn = document.getElementById('orders-modal-close-btn');
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.closeOrdersModal());
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) this.closeOrdersModal();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay && overlay.classList.contains('active')) {
+        this.closeOrdersModal();
+      }
+    });
+  }
+
+  closeOrdersModal() {
+    const overlay = document.getElementById('orders-modal-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  async openOrdersModal() {
+    const overlay = document.getElementById('orders-modal-overlay');
+    const content = document.getElementById('orders-modal-content');
+    if (!overlay || !content) return;
+
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    content.innerHTML = `
+      <div class="orders-header">
+        <div>
+          <h2 class="orders-header-title">My Orders</h2>
+          <div class="orders-header-subtitle">Your personal acquisitions & delivery status</div>
+        </div>
+      </div>
+      <div class="orders-body" style="text-align:center; padding: 3.5rem 2rem;">
+        <div style="margin: 0 auto 1.25rem; width: 28px; height: 28px; border: 2.5px solid rgba(212, 175, 55, 0.2); border-top-color: #D4AF37; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+        <div style="color: rgba(255, 255, 255, 0.5); font-size: 0.85rem;">Retrieving order history...</div>
+      </div>
+    `;
+
+    try {
+      const adminSession = JSON.parse(localStorage.getItem('zarona_admin_session') || 'null');
+      const userSession = JSON.parse(localStorage.getItem('zarona_session') || 'null');
+      const token = adminSession?.token || userSession?.token;
+
+      if (!token) {
+        content.querySelector('.orders-body').innerHTML = `
+          <div style="text-align:center; padding: 2.5rem 1rem;">
+            <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1.25rem; font-size: 0.9rem;">Please sign in to view your orders.</p>
+            <a href="/login.html" class="btn btn-primary" style="display:inline-block; padding: 0.65rem 1.75rem; background: #D4AF37; color: #141414; border-radius: 999px; font-weight: 700; text-decoration: none; font-size: 0.82rem;">Sign In</a>
+          </div>
+        `;
+        return;
+      }
+
+      const res = await fetch('/api/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to fetch orders');
+      }
+
+      const orders = data.orders || [];
+
+      if (orders.length === 0) {
+        content.querySelector('.orders-body').innerHTML = `
+          <div style="text-align: center; padding: 3rem 1.5rem;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; color: rgba(255, 255, 255, 0.4);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line></svg>
+            </div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.45rem; color: #EDE8DE; margin-bottom: 0.4rem;">No Orders Placed Yet</h3>
+            <p style="font-size: 0.82rem; color: rgba(255, 255, 255, 0.5); max-width: 360px; margin: 0 auto 1.5rem; line-height: 1.5;">Your placed acquisitions will appear here with live dispatch updates.</p>
+            <a href="/shop.html" class="btn btn-primary" style="display:inline-block; padding: 0.65rem 1.75rem; background: #D4AF37; color: #141414; border-radius: 999px; font-weight: 700; text-decoration: none; font-size: 0.82rem;">Explore Catalog</a>
+          </div>
+        `;
+        return;
+      }
+
+      content.querySelector('.orders-body').innerHTML = orders.map(order => {
+        const orderRef = order.id ? order.id.slice(-6).toUpperCase() : '------';
+        const dateStr = new Date(order.created_at).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+        const paymentMethod = order.shipping_address?.payment_method || 'Cash on Delivery';
+        const items = order.order_items || [];
+
+        return `
+          <div class="order-history-card">
+            <div class="order-history-top">
+              <div>
+                <div class="order-ref-title">Order #ZR-${orderRef}</div>
+                <div class="order-date-text">Placed on ${dateStr}</div>
+              </div>
+              <div class="order-badges-wrap">
+                <span class="order-payment-pill">${paymentMethod}</span>
+                <span class="order-status-pill ${order.status}">${order.status}</span>
+              </div>
+            </div>
+
+            <div class="order-items-grid">
+              ${items.map(item => `
+                <div class="order-item-line">
+                  <img src="${item.product_image || ''}" alt="${item.product_name}" class="order-item-pic" onerror="this.style.visibility='hidden'">
+                  <div class="order-item-info">
+                    <div class="order-item-name">${item.product_name}</div>
+                    <div class="order-item-sub">Size: ${item.size} ${item.color ? '· ' + item.color : ''} · Qty: ${item.quantity}</div>
+                  </div>
+                  <div class="order-item-amount">$${parseFloat(item.total_price || 0).toFixed(2)}</div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="order-history-bottom">
+              <span style="color: rgba(255, 255, 255, 0.5);">Total (incl. delivery)</span>
+              <span class="order-total-highlight">$${parseFloat(order.total || 0).toFixed(2)}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+    } catch (err) {
+      content.querySelector('.orders-body').innerHTML = `
+        <div style="padding: 2.5rem 1rem; text-align: center; color: #F87171;">
+          <p style="margin-bottom: 0.5rem; font-weight: 600;">Failed to load order history</p>
+          <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.5); margin-bottom: 1rem;">${err.message}</p>
+          <button type="button" class="btn btn-secondary" style="padding: 0.5rem 1.25rem; font-size: 0.8rem;" onclick="app.openOrdersModal()">Retry</button>
+        </div>
+      `;
     }
   }
 

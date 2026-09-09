@@ -38,6 +38,32 @@ export async function verifyAdmin(req) {
 }
 
 /**
+ * Extracts and verifies Bearer token for any authenticated user (customer or admin).
+ * Returns { user, role, error }.
+ */
+export async function verifyAuth(req) {
+  const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { user: null, role: null, error: 'Missing or invalid Authorization header' };
+  }
+
+  const token = authHeader.replace('Bearer ', '').trim();
+
+  const { data, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !data?.user) {
+    return { user: null, role: null, error: 'Invalid or expired token' };
+  }
+
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('role')
+    .eq('id', data.user.id)
+    .single();
+
+  return { user: data.user, role: profile?.role || 'customer', error: null };
+}
+
+/**
  * Standard CORS + JSON headers for all API responses.
  */
 export function setCorsHeaders(res) {

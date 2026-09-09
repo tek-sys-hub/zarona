@@ -1,17 +1,17 @@
 // =============================================================================
-//  GET  /api/orders  — List all orders (admin only)
+//  GET  /api/orders  — List orders (admin: all, customer: own orders)
 //  POST /api/orders  — Place a new order (customer or guest)
 // =============================================================================
 
 import { supabaseAdmin } from './_supabase.js';
-import { handleCors, verifyAdmin, sendError, sendSuccess } from './_middleware.js';
+import { handleCors, verifyAuth, sendError, sendSuccess } from './_middleware.js';
 
 export default async function handler(req, res) {
   if (handleCors(req, res)) return;
 
-  // ── GET /api/orders (admin only) ──────────────────────────────────────────
+  // ── GET /api/orders ───────────────────────────────────────────────────────
   if (req.method === 'GET') {
-    const { user, error: authError } = await verifyAdmin(req);
+    const { user, role, error: authError } = await verifyAuth(req);
     if (authError) return sendError(res, 401, authError);
 
     const { status, page = 1, limit = 20 } = req.query;
@@ -27,7 +27,12 @@ export default async function handler(req, res) {
       .order('created_at', { ascending: false })
       .range(offset, offset + parseInt(limit) - 1);
 
-    if (status) query = query.eq('status', status);
+    // If customer, restrict to their own orders only
+    if (role !== 'admin') {
+      query = query.eq('user_id', user.id);
+    } else if (status) {
+      query = query.eq('status', status);
+    }
 
     const { data, error, count } = await query;
     if (error) return sendError(res, 500, error.message);
