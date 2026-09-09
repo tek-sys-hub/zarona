@@ -1,0 +1,13 @@
+{
+  "name": "zarona-unisex",
+  "version": "1.0.0",
+  "description": "Zarona Unisex - Luxury Minimalist E-Commerce Experience",
+  "scripts": {
+    "dev": "vite --port 3000 --host",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.2"
+  }
+}
