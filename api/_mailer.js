@@ -158,42 +158,32 @@ export function buildOtpEmailHtml({ otp, email, name = '' }) {
 }
 
 /**
- * Sends an email using Resend, Nodemailer SMTP, or dev preview
+ * Sends an email using Nodemailer SMTP, Resend, or dev preview
  */
 export async function sendEmail({ to, subject, html, text }) {
-  // 1. Try Resend if configured
-  if (RESEND_API_KEY) {
-    try {
-      const resend = new Resend(RESEND_API_KEY);
-      const data = await resend.emails.send({
-        from: FROM_EMAIL,
-        to,
-        subject,
-        html,
-        text,
-      });
-      console.log('Email dispatched via Resend:', data);
-      return { success: true, provider: 'resend', data };
-    } catch (err) {
-      console.error('Resend error:', err);
-    }
-  }
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS ? process.env.SMTP_PASS.replace(/\s+/g, '') : '';
+  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const smtpPort = parseInt(process.env.SMTP_PORT || '465');
 
-  // 2. Try SMTP if configured
-  if (SMTP_USER && SMTP_PASS) {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.EMAIL_FROM || (smtpUser ? `Zarona Unisex <${smtpUser}>` : 'Zarona Unisex <onboarding@resend.dev>');
+
+  // 1. Try SMTP if configured (Works with Gmail, Brevo, SendGrid without custom domain)
+  if (smtpUser && smtpPass) {
     try {
       const transporter = nodemailer.createTransport({
-        host: SMTP_HOST,
-        port: SMTP_PORT,
-        secure: SMTP_PORT === 465,
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
         auth: {
-          user: SMTP_USER,
-          pass: SMTP_PASS,
+          user: smtpUser,
+          pass: smtpPass,
         },
       });
 
       const info = await transporter.sendMail({
-        from: FROM_EMAIL,
+        from: fromEmail,
         to,
         subject,
         html,
@@ -203,6 +193,24 @@ export async function sendEmail({ to, subject, html, text }) {
       return { success: true, provider: 'smtp', messageId: info.messageId };
     } catch (err) {
       console.error('SMTP error:', err);
+    }
+  }
+
+  // 2. Try Resend if configured
+  if (resendApiKey) {
+    try {
+      const resend = new Resend(resendApiKey);
+      const data = await resend.emails.send({
+        from: fromEmail,
+        to,
+        subject,
+        html,
+        text,
+      });
+      console.log('Email dispatched via Resend:', data);
+      return { success: true, provider: 'resend', data };
+    } catch (err) {
+      console.error('Resend error:', err);
     }
   }
 
